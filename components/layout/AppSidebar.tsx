@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
     LayoutDashboard,
     Cpu,
@@ -54,19 +55,20 @@ const items = [
 ];
 
 export function AppSidebar() {
+    const pathname = usePathname();
+
     return (
         <Sidebar>
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarGroupLabel>
-                        eWarranty
-                    </SidebarGroupLabel>
+                    <SidebarGroupLabel>eWarranty</SidebarGroupLabel>
 
                     <SidebarMenu>
                         {items.map((item) => (
-                            <SidebarMenuItem key={item.title}>
+                            <SidebarMenuItem key={item.url}>
                                 <SidebarMenuButton
-                                    render={<Link href={item.url} />}
+                                    render={<Link href={item.url} prefetch />}
+                                    isActive={pathname.startsWith(item.url)}
                                 >
                                     <item.icon className="size-4" />
                                     <span>{item.title}</span>
@@ -74,7 +76,6 @@ export function AppSidebar() {
                             </SidebarMenuItem>
                         ))}
                     </SidebarMenu>
-
                 </SidebarGroup>
             </SidebarContent>
         </Sidebar>
