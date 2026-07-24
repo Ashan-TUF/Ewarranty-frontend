@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { machineCategoryOptions } from "../types/machine";
+
 export const createMachineSchema = z.object({
     machineName: z
         .string()
@@ -13,7 +15,7 @@ export const createMachineSchema = z.object({
         .min(1, "Manufacturer is required.")
         .max(100),
 
-    category: z.number({
+    category: z.enum(machineCategoryOptions, {
         error: "Machine category is required.",
     }),
 

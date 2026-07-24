@@ -1,5 +1,5 @@
-import CreateMachinePage from "@/features/machine/pages/CreateMachinePage";
+import MachineListPage from "@/features/machine/pages/MachineListPage";
 
 export default function Page() {
-    return <CreateMachinePage />;
+    return <MachineListPage />;
 }
