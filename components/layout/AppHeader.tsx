@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { MoonStar, SunMedium } from "lucide-react";
 
@@ -22,10 +23,16 @@ export default function AppHeader({
 }: AppHeaderProps) {
     const { resolvedTheme, toggleTheme } = useTheme();
 
+    // Prevent hydration mismatch
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     return (
         <header className="sticky top-0 z-40 border-b bg-background transition-colors duration-300 ease-out">
             <div className="flex h-16 items-center gap-4 px-6">
-
                 <SidebarTrigger />
 
                 <Separator
@@ -34,9 +41,7 @@ export default function AppHeader({
                 />
 
                 <div className="flex flex-col">
-                    <h1 className="text-xl font-semibold">
-                        {title}
-                    </h1>
+                    <h1 className="text-xl font-semibold">{title}</h1>
 
                     {description && (
                         <p className="text-sm text-muted-foreground">
@@ -46,7 +51,11 @@ export default function AppHeader({
                 </div>
 
                 <div className="ml-auto flex items-center gap-3">
-                    <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} transition={{ duration: 0.18 }}>
+                    <motion.div
+                        whileHover={{ scale: 1.04 }}
+                        whileTap={{ scale: 0.96 }}
+                        transition={{ duration: 0.18 }}
+                    >
                         <Button
                             type="button"
                             variant="outline"
@@ -56,26 +65,39 @@ export default function AppHeader({
                             title="Toggle color theme"
                             className="transition-colors duration-300 ease-out"
                         >
-                            <motion.span
-                                key={resolvedTheme}
-                                initial={{ rotate: -25, scale: 0.85, opacity: 0 }}
-                                animate={{ rotate: 0, scale: 1, opacity: 1 }}
-                                exit={{ rotate: 25, scale: 0.85, opacity: 0 }}
-                                transition={{ duration: 0.18, ease: "easeOut" }}
-                                className="flex items-center justify-center"
-                            >
-                                {resolvedTheme === "dark" ? (
-                                    <SunMedium className="size-4" />
-                                ) : (
-                                    <MoonStar className="size-4" />
-                                )}
-                            </motion.span>
+                            {!mounted ? (
+                                <div className="size-4" />
+                            ) : (
+                                <motion.span
+                                    key={resolvedTheme}
+                                    initial={{
+                                        rotate: -25,
+                                        scale: 0.85,
+                                        opacity: 0,
+                                    }}
+                                    animate={{
+                                        rotate: 0,
+                                        scale: 1,
+                                        opacity: 1,
+                                    }}
+                                    transition={{
+                                        duration: 0.18,
+                                        ease: "easeOut",
+                                    }}
+                                    className="flex items-center justify-center"
+                                >
+                                    {resolvedTheme === "dark" ? (
+                                        <SunMedium className="size-4" />
+                                    ) : (
+                                        <MoonStar className="size-4" />
+                                    )}
+                                </motion.span>
+                            )}
                         </Button>
                     </motion.div>
 
                     {actions}
                 </div>
-
             </div>
         </header>
     );
