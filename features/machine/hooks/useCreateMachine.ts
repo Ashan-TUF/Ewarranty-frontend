@@ -14,17 +14,22 @@ function getErrorMessage(error: unknown) {
             data?: {
                 message?: string;
                 error?: string;
+                errors?: Record<string, string[]>;
             };
         };
         message?: string;
     };
 
-    return (
-        response.response?.data?.message ??
-        response.response?.data?.error ??
-        response.message ??
-        "Failed to create machine."
-    );
+    const data = response.response?.data;
+
+    if (data?.errors) {
+        const firstFieldError = Object.values(data.errors)[0]?.[0];
+        if (firstFieldError) {
+            return firstFieldError;
+        }
+    }
+
+    return data?.message ?? data?.error ?? response.message ?? "Failed to create machine.";
 }
 
 export function useCreateMachine() {

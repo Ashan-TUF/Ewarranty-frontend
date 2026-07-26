@@ -13,8 +13,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ROUTES } from "@/constants/routes";
 
 import { useCreateMachine } from "../hooks/useCreateMachine";
-import { createMachineSchema, type CreateMachineForm } from "../schemas/machine.schema";
+import { createMachineSchema, MachineCategory, type CreateMachineForm } from "../schemas/machine.schema";
 import { machineCategoryOptions } from "../types/machine";
+import { AxiosError } from "axios";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export default function MachineForm() {
     const router = useRouter();
@@ -25,13 +28,14 @@ export default function MachineForm() {
         register,
         handleSubmit,
         reset,
+        setError,
         formState: { errors },
     } = useForm<CreateMachineForm>({
         resolver: zodResolver(createMachineSchema),
         defaultValues: {
             machineName: "",
             manufacturer: "",
-            category: undefined,
+            category: "",
             description: "",
         },
     });
@@ -43,7 +47,34 @@ export default function MachineForm() {
     }, [createMachineMutation.isSuccess, reset]);
 
     const onSubmit = async (values: CreateMachineForm) => {
-        await createMachineMutation.mutateAsync(values);
+        try {
+            await createMachineMutation.mutateAsync({
+                machineName: values.machineName,
+                manufacturer: values.manufacturer,
+                category: values.category as MachineCategory,
+                description: values.description?.trim() || undefined,
+            });
+        } catch (error) {
+            if (error instanceof AxiosError && error.response?.data?.errors) {
+                const data = error.response.data;
+
+                Object.entries(data.errors as Record<string, string[]>).forEach(
+                    ([field, messages]) => {
+                        setError(field as keyof CreateMachineForm, {
+                            type: "server",
+                            message: messages[0],
+                        });
+                    }
+                );
+            }
+        }
+    };
+
+    const onInvalid = (formErrors: typeof errors) => {
+        const firstError = Object.values(formErrors)[0]?.message;
+        if (firstError) {
+            toast.error(firstError as string);
+        }
     };
 
     return (
@@ -56,7 +87,7 @@ export default function MachineForm() {
             </CardHeader>
 
             <CardContent>
-                <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                <form className="space-y-6" onSubmit={handleSubmit(onSubmit, onInvalid)}>
                     <div className="grid gap-6 md:grid-cols-2">
                         <div className="space-y-2">
                             <label className="text-sm font-medium" htmlFor="machineName">
@@ -66,14 +97,9 @@ export default function MachineForm() {
                             <Input
                                 id="machineName"
                                 placeholder="Enter machine name"
+                                className={cn(errors.machineName && "border-destructive focus-visible:ring-destructive")}
                                 {...register("machineName")}
                             />
-
-                            {errors.machineName ? (
-                                <p className="text-sm text-destructive">
-                                    {errors.machineName.message}
-                                </p>
-                            ) : null}
                         </div>
 
                         <div className="space-y-2">
@@ -84,14 +110,9 @@ export default function MachineForm() {
                             <Input
                                 id="manufacturer"
                                 placeholder="Enter manufacturer"
+                                className={cn(errors.manufacturer && "border-destructive focus-visible:ring-destructive")}
                                 {...register("manufacturer")}
                             />
-
-                            {errors.manufacturer ? (
-                                <p className="text-sm text-destructive">
-                                    {errors.manufacturer.message}
-                                </p>
-                            ) : null}
                         </div>
                     </div>
 
@@ -105,16 +126,22 @@ export default function MachineForm() {
                             name="category"
                             render={({ field }) => (
                                 <Select
-                                    value={field.value}
+                                    value={field.value ?? ""}
                                     onValueChange={field.onChange}
                                 >
-                                    <SelectTrigger id="category" className="w-full">
+                                    <SelectTrigger
+                                        className={cn("w-full", errors.category && "border-destructive focus-visible:ring-destructive")}
+                                    >
+
                                         <SelectValue placeholder="Select a category" />
                                     </SelectTrigger>
 
                                     <SelectContent>
                                         {machineCategoryOptions.map((category) => (
-                                            <SelectItem key={category} value={category}>
+                                            <SelectItem
+                                                key={category}
+                                                value={category}
+                                            >
                                                 {category}
                                             </SelectItem>
                                         ))}
@@ -122,12 +149,6 @@ export default function MachineForm() {
                                 </Select>
                             )}
                         />
-
-                        {errors.category ? (
-                            <p className="text-sm text-destructive">
-                                {errors.category.message}
-                            </p>
-                        ) : null}
                     </div>
 
                     <div className="space-y-2">
@@ -139,14 +160,9 @@ export default function MachineForm() {
                             id="description"
                             rows={5}
                             placeholder="Enter description"
+                            className={cn(errors.description && "border-destructive focus-visible:ring-destructive")}
                             {...register("description")}
                         />
-
-                        {errors.description ? (
-                            <p className="text-sm text-destructive">
-                                {errors.description.message}
-                            </p>
-                        ) : null}
                     </div>
 
                     <div className="flex justify-end gap-3">

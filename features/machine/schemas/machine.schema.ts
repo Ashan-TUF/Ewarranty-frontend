@@ -1,29 +1,12 @@
 import { z } from "zod";
-
-import { machineCategoryOptions } from "../types/machine";
+import type { CreateMachineRequest } from "../types/machine";
 
 export const createMachineSchema = z.object({
-    machineName: z
-        .string()
-        .trim()
-        .min(1, "Machine name is required.")
-        .max(100),
-
-    manufacturer: z
-        .string()
-        .trim()
-        .min(1, "Manufacturer is required.")
-        .max(100),
-
-    category: z.enum(machineCategoryOptions, {
-        error: "Machine category is required.",
-    }),
-
-    description: z
-        .string()
-        .max(500)
-        .optional(),
+    machineName: z.string().trim().min(1, "Machine name is required."),
+    manufacturer: z.string().trim().min(1, "Manufacturer is required."),
+    category: z.string().min(1, "Machine category is required."),
+    description: z.string().optional(),
 });
 
-export type CreateMachineForm =
-    z.infer<typeof createMachineSchema>;
+export type CreateMachineForm = z.infer<typeof createMachineSchema>;
+export type MachineCategory = CreateMachineRequest["category"];
