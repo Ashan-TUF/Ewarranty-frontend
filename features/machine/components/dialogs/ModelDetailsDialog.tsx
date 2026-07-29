@@ -33,13 +33,13 @@ import {
 } from "@/components/ui/dialog";
 
 import type {
-    DemoMachine,
-    DemoModel,
-    DemoWarranty,
-} from "../data/demo-machines";
+    MachineResponse,
+    MachineModelResponse,
+    WarrantyResponse,
+} from "../../types/machine";
 
-import { MachinePagination } from "./MachinePagination";
-import { useWarrantyTypes } from "../hooks/useWarrantyTypes";
+import { MachinePagination } from "../MachinePagination";
+import { useWarrantyTypes } from "../../hooks/useWarrantyTypes";
 
 /* =========================================================
    HELPERS
@@ -66,8 +66,8 @@ const ruleTypeLabels: Record<string, string> = {
 ========================================================= */
 
 interface ModelDetailsDialogProps {
-    machine: DemoMachine;
-    model: DemoModel | null;
+    machine: MachineResponse;
+    model: MachineModelResponse | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
@@ -125,7 +125,10 @@ export function ModelDetailsDialog({
        Model Warranties
     --------------------------------------------------------- */
 
-    const warranties = model?.warranties ?? [];
+    const warranties = useMemo(
+        () => model?.warranties ?? [],
+        [model]
+    );
 
     const selectedWarranty = warranties.find(
         (warranty) =>
@@ -169,9 +172,9 @@ export function ModelDetailsDialog({
                 !hasCompletePeriodFilter ||
                 (
                     warranty.warrantyPeriod ===
-                        Number(warrantyPeriod) &&
+                    Number(warrantyPeriod) &&
                     warranty.warrantyPeriodUnit ===
-                        warrantyPeriodUnit
+                    warrantyPeriodUnit
                 );
 
             /* Rule Type */
@@ -708,9 +711,9 @@ export function ModelDetailsDialog({
 ========================================================= */
 
 interface WarrantyViewProps {
-    machine: DemoMachine;
-    model: DemoModel;
-    warranty: DemoWarranty;
+    machine: MachineResponse;
+    model: MachineModelResponse;
+    warranty: WarrantyResponse;
     onBack: () => void;
 }
 

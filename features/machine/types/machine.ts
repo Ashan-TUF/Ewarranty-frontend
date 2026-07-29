@@ -1,36 +1,76 @@
-export const machineCategoryOptions = [
-    "Copier",
+export type MachineCategory =
+    | "Printer"
+    | "Photocopier"
+    | "Scanner"
+    | "Projector"
+    | "Other";
+
+export const machineCategoryOptions: MachineCategory[] = [
     "Printer",
-    "Multifunction Printer",
-    "Projector",
-    "Duplicator",
+    "Photocopier",
     "Scanner",
-] as const;
+    "Projector",
+    "Other",
+];
 
-export type MachineCategoryOption =
-    (typeof machineCategoryOptions)[number];
-
-export interface CreateMachineRequest {
-    machineName: string;
-    manufacturer: string;
-    category: MachineCategoryOption;
-    description?: string;
-}
-
-export interface MachineApiResponse {
-    id: number;
+export interface MachineResponse {
     machineCode: string;
     machineName: string;
     manufacturer: string;
-    category: string;
+    category: MachineCategory;
+    description?: string;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt?: string;
+    models: MachineModelResponse[];
+}
+
+export interface MachineModelResponse {
+    modelCode: string;
+    modelName: string;
+    description?: string;
+    colorType?: "Color" | "Monochrome";
+    networkType?: "USB" | "Network" | "Wireless";
+    isActive: boolean;
+    createdAt: string;
+    updatedAt?: string;
+    warranties: WarrantyResponse[];
+}
+
+export interface WarrantyResponse {
+    warrantyTypeCode: string;
+    warrantyTypeName: string;
+    warrantyPeriod: number;
+    warrantyPeriodUnit: string;
+    warrantyCopyLimit?: number;
+    warrantyHourLimit?: number;
+    ruleType: "TimeOnly" | "TimeOrCopies" | "TimeOrHours";
     description?: string;
     isActive: boolean;
     createdAt: string;
 }
 
-export interface ApiResponse<TData> {
-    data: TData;
-    success: boolean;
-    statusCode: number;
-    message: string;
+export interface CreateMachineRequest {
+    machineName: string;
+    manufacturer: string;
+    category: MachineCategory;
+    description?: string;
+}
+
+export interface CreateMachineModelRequest {
+    machineCode: string;
+    modelName: string;
+    description?: string;
+    colorType?: "Color" | "Monochrome";
+    networkType?: "USB" | "Network" | "Wireless";
+}
+
+export interface PagedResponse<T> {
+    items: T[];
+    totalCount: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
 }

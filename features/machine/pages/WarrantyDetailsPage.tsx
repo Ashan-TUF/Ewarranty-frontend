@@ -23,6 +23,7 @@ import {
 import { ROUTES } from "@/constants/routes";
 
 import { demoMachines } from "../data/demo-machines";
+import { PageState } from "@/features/machine/components";
 
 function formatDate(dateValue?: string) {
     if (!dateValue) return "—";
@@ -60,19 +61,12 @@ export default function WarrantyDetailsPage({
         return (
             <>
                 <AppHeader title="Warranty not found" />
-                <main className="p-6">
-                    <div className="rounded-xl border border-dashed py-16 text-center">
-                        <p className="font-medium">
-                            No warranty found with code{" "}
-                            <span className="font-mono">{warrantyTypeCode}</span>
-                        </p>
-                        <Link
-                            href={ROUTES.MACHINE_MODEL_DETAILS(machineCode, modelCode)}
-                            className="mt-3 inline-block text-sm text-primary hover:underline"
-                        >
-                            Back to model
-                        </Link>
-                    </div>
+                <main className="p-4 sm:p-6">
+                    <PageState
+                        title={`No warranty found with code ${warrantyTypeCode}`}
+                        actionLabel="Back to model"
+                        actionHref={ROUTES.MACHINE_MODEL_DETAILS(machineCode, modelCode)}
+                    />
                 </main>
             </>
         );
@@ -85,7 +79,7 @@ export default function WarrantyDetailsPage({
                 description={`Warranty details for ${model.modelName}.`}
             />
 
-            <main className="space-y-6 p-6">
+            <main className="space-y-6 p-4 sm:p-6">
                 <Link
                     href={ROUTES.MACHINE_MODEL_DETAILS(machineCode, modelCode)}
                     className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"

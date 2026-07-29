@@ -1,7 +1,7 @@
 "use client";
 
 import AppHeader from "@/components/layout/AppHeader";
-import MachineForm from "../components/MachineForm";
+import { MachineForm } from "@/features/machine/components";
 
 export default function CreateMachinePage() {
     return (
@@ -11,7 +11,7 @@ export default function CreateMachinePage() {
                 description="Register a new machine."
             />
 
-            <main className="p-6">
+            <main className="p-4 sm:p-6">
                 <MachineForm />
             </main>
         </>

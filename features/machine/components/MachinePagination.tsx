@@ -10,7 +10,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
 
 interface MachinePaginationProps {
     page: number;
@@ -42,7 +41,7 @@ export function MachinePagination({
                 <span className="font-medium text-foreground">{totalItems}</span> machines
             </p>
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                 <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">Rows per page</span>
                     <Select
@@ -60,7 +59,7 @@ export function MachinePagination({
                     </Select>
                 </div>
 
-                <div className="flex items-center gap-1">
+                <div className="flex flex-wrap items-center gap-1">
                     <Button
                         type="button"
                         variant="outline"
@@ -84,12 +83,8 @@ export function MachinePagination({
                             <Button
                                 key={entry}
                                 type="button"
-                                variant="outline"
+                                variant={entry === page ? "default" : "outline"}
                                 size="icon-sm"
-                                className={cn(
-                                    entry === page &&
-                                        "border-primary bg-primary text-primary-foreground hover:bg-primary/90"
-                                )}
                                 onClick={() => onPageChange(entry)}
                             >
                                 {entry}

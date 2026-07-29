@@ -27,7 +27,6 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 
 import {
@@ -35,31 +34,36 @@ import {
     warrantyPeriodUnitOptions,
     warrantyRuleTypeOptions,
     type CreateModelWarrantyForm,
-} from "../schemas/model-warranty.schema";
+} from "../../schemas/model-warranty.schema";
 
-import type { CreateWarrantyTypeForm } from "../schemas/warranty-type.schema";
+import type { CreateWarrantyTypeForm } from "../../schemas/warranty-type.schema";
 
-import { useWarrantyTypes } from "../hooks/useWarrantyTypes"; 
-import { useCreateWarrantyType } from "../hooks/useCreateWarrantyType";
-import { useCreateModelWarranty } from "../hooks/useCreateModelWarranty";
+import { useWarrantyTypes } from "../../hooks/useWarrantyTypes";
+import { useCreateWarrantyType } from "../../hooks/useCreateWarrantyType";
+import { useCreateModelWarranty } from "../../hooks/useCreateModelWarranty";
 
-import { AddWarrantyTypeDialog } from "./AddWarrantyTypeDialog";
+import { AddWarrantyTypeDialog } from "./AddWarrantyTypeDialog"; 
 
 interface AddWarrantyDialogProps {
     machineCode: string;
     modelCode: string;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
 }
 
 export function AddWarrantyDialog({
     machineCode,
     modelCode,
+    open,
+    onOpenChange,
 }: AddWarrantyDialogProps) {
-    const [open, setOpen] = useState(false);
     const [warrantyTypeOpen, setWarrantyTypeOpen] =
         useState(false);
 
-    const { data: warrantyTypes = [], isLoading } =
-        useWarrantyTypes();
+    const {
+        data: warrantyTypes = [],
+        isLoading: isLoadingWarrantyTypes,
+    } = useWarrantyTypes();
 
     const createWarranty =
         useCreateModelWarranty(machineCode, modelCode);
@@ -92,53 +96,68 @@ export function AddWarrantyDialog({
         name: "ruleType",
     });
 
-    async function onSubmit(values: CreateModelWarrantyForm) {
-        await createWarranty.mutateAsync(values);
+    async function onSubmit(
+        values: CreateModelWarrantyForm
+    ) {
+        try {
+            await createWarranty.mutateAsync(values);
 
-        reset();
-        setOpen(false);
+            reset();
+            onOpenChange(false);
+        } catch {
+            // Mutation hook can handle API error/toast.
+            // Keep the dialog open so the user can correct/retry.
+        }
     }
 
     async function handleCreateWarrantyType(
         values: CreateWarrantyTypeForm
     ) {
-        const created =
-            await createWarrantyType.mutateAsync(values);
+        try {
+            const created =
+                await createWarrantyType.mutateAsync(values);
 
-        setValue(
-            "warrantyTypeCode",
-            created.warrantyTypeCode,
-            {
-                shouldValidate: true,
-                shouldDirty: true,
-            }
-        );
+            setValue(
+                "warrantyTypeCode",
+                created.warrantyTypeCode,
+                {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                }
+            );
 
-        setWarrantyTypeOpen(false);
+            setWarrantyTypeOpen(false);
+        } catch {
+            // Keep nested dialog open on failure.
+        }
+    }
+
+    function handleDialogOpenChange(
+        nextOpen: boolean
+    ) {
+        onOpenChange(nextOpen);
+
+        if (!nextOpen) {
+            reset();
+            setWarrantyTypeOpen(false);
+        }
+    }
+
+    function handleCancel() {
+        handleDialogOpenChange(false);
     }
 
     return (
         <>
             <Dialog
                 open={open}
-                onOpenChange={(next) => {
-                    setOpen(next);
-
-                    if (!next) {
-                        reset();
-                    }
-                }}
+                onOpenChange={handleDialogOpenChange}
             >
-                <DialogTrigger
-                    render={<Button size="sm" type="button" />}
-                >
-                    <Plus className="size-4" />
-                    Add Warranty
-                </DialogTrigger>
-
                 <DialogContent className="sm:max-w-lg">
                     <DialogHeader>
-                        <DialogTitle>Add Warranty</DialogTitle>
+                        <DialogTitle>
+                            Add Warranty
+                        </DialogTitle>
 
                         <DialogDescription>
                             Add a warranty to model{" "}
@@ -148,7 +167,8 @@ export function AddWarrantyDialog({
                             under machine{" "}
                             <span className="font-mono">
                                 {machineCode}
-                            </span>.
+                            </span>
+                            .
                         </DialogDescription>
                     </DialogHeader>
 
@@ -159,7 +179,7 @@ export function AddWarrantyDialog({
                     >
                         {/* Warranty Type */}
                         <div className="space-y-1.5">
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between gap-3">
                                 <label className="text-sm font-medium">
                                     Warranty Type
                                 </label>
@@ -182,15 +202,19 @@ export function AddWarrantyDialog({
                                 name="warrantyTypeCode"
                                 render={({ field }) => (
                                     <Select
-                                        value={field.value}
-                                        onValueChange={field.onChange}
-                                        disabled={isLoading}
+                                        value={field.value ?? ""}
+                                        onValueChange={
+                                            field.onChange
+                                        }
+                                        disabled={
+                                            isLoadingWarrantyTypes
+                                        }
                                     >
                                         <SelectTrigger className="w-full">
                                             <SelectValue
                                                 placeholder={
-                                                    isLoading
-                                                        ? "Loading..."
+                                                    isLoadingWarrantyTypes
+                                                        ? "Loading warranty types..."
                                                         : "Select warranty type"
                                                 }
                                             />
@@ -220,13 +244,17 @@ export function AddWarrantyDialog({
 
                             {errors.warrantyTypeCode && (
                                 <p className="text-sm text-destructive">
-                                    {errors.warrantyTypeCode.message}
+                                    {
+                                        errors
+                                            .warrantyTypeCode
+                                            .message
+                                    }
                                 </p>
                             )}
                         </div>
 
-                        {/* Period */}
-                        <div className="grid grid-cols-2 gap-4">
+                        {/* Warranty Period */}
+                        <div className="grid gap-4 sm:grid-cols-2">
                             <div className="space-y-1.5">
                                 <label
                                     htmlFor="warrantyPeriod"
@@ -249,7 +277,11 @@ export function AddWarrantyDialog({
 
                                 {errors.warrantyPeriod && (
                                     <p className="text-sm text-destructive">
-                                        {errors.warrantyPeriod.message}
+                                        {
+                                            errors
+                                                .warrantyPeriod
+                                                .message
+                                        }
                                     </p>
                                 )}
                             </div>
@@ -266,10 +298,20 @@ export function AddWarrantyDialog({
                                         warrantyPeriodUnitOptions
                                     }
                                 />
+
+                                {errors.warrantyPeriodUnit && (
+                                    <p className="text-sm text-destructive">
+                                        {
+                                            errors
+                                                .warrantyPeriodUnit
+                                                .message
+                                        }
+                                    </p>
+                                )}
                             </div>
                         </div>
 
-                        {/* Rule */}
+                        {/* Warranty Rule */}
                         <div className="space-y-1.5">
                             <label className="text-sm font-medium">
                                 Warranty Rule
@@ -278,8 +320,16 @@ export function AddWarrantyDialog({
                             <WarrantySelectField
                                 control={control}
                                 name="ruleType"
-                                options={warrantyRuleTypeOptions}
+                                options={
+                                    warrantyRuleTypeOptions
+                                }
                             />
+
+                            {errors.ruleType && (
+                                <p className="text-sm text-destructive">
+                                    {errors.ruleType.message}
+                                </p>
+                            )}
                         </div>
 
                         {/* Copy Limit */}
@@ -300,10 +350,14 @@ export function AddWarrantyDialog({
                                     {...register(
                                         "warrantyCopyLimit",
                                         {
-                                            setValueAs: (value) =>
+                                            setValueAs: (
+                                                value
+                                            ) =>
                                                 value === ""
                                                     ? undefined
-                                                    : Number(value),
+                                                    : Number(
+                                                          value
+                                                      ),
                                         }
                                     )}
                                 />
@@ -311,7 +365,8 @@ export function AddWarrantyDialog({
                                 {errors.warrantyCopyLimit && (
                                     <p className="text-sm text-destructive">
                                         {
-                                            errors.warrantyCopyLimit
+                                            errors
+                                                .warrantyCopyLimit
                                                 .message
                                         }
                                     </p>
@@ -337,10 +392,14 @@ export function AddWarrantyDialog({
                                     {...register(
                                         "warrantyHourLimit",
                                         {
-                                            setValueAs: (value) =>
+                                            setValueAs: (
+                                                value
+                                            ) =>
                                                 value === ""
                                                     ? undefined
-                                                    : Number(value),
+                                                    : Number(
+                                                          value
+                                                      ),
                                         }
                                     )}
                                 />
@@ -348,7 +407,8 @@ export function AddWarrantyDialog({
                                 {errors.warrantyHourLimit && (
                                     <p className="text-sm text-destructive">
                                         {
-                                            errors.warrantyHourLimit
+                                            errors
+                                                .warrantyHourLimit
                                                 .message
                                         }
                                     </p>
@@ -363,7 +423,7 @@ export function AddWarrantyDialog({
                                 className="text-sm font-medium"
                             >
                                 Description{" "}
-                                <span className="text-muted-foreground">
+                                <span className="font-normal text-muted-foreground">
                                     (optional)
                                 </span>
                             </label>
@@ -377,7 +437,10 @@ export function AddWarrantyDialog({
 
                             {errors.description && (
                                 <p className="text-sm text-destructive">
-                                    {errors.description.message}
+                                    {
+                                        errors.description
+                                            .message
+                                    }
                                 </p>
                             )}
                         </div>
@@ -387,7 +450,10 @@ export function AddWarrantyDialog({
                         <Button
                             type="button"
                             variant="outline"
-                            onClick={() => setOpen(false)}
+                            disabled={
+                                createWarranty.isPending
+                            }
+                            onClick={handleCancel}
                         >
                             Cancel
                         </Button>
@@ -395,7 +461,9 @@ export function AddWarrantyDialog({
                         <Button
                             type="submit"
                             form="add-warranty-form"
-                            disabled={createWarranty.isPending}
+                            disabled={
+                                createWarranty.isPending
+                            }
                         >
                             {createWarranty.isPending
                                 ? "Saving..."
@@ -414,22 +482,24 @@ export function AddWarrantyDialog({
     );
 }
 
+interface WarrantySelectFieldProps {
+    control: Control<CreateModelWarrantyForm>;
+    name: "warrantyPeriodUnit" | "ruleType";
+    options: readonly string[];
+}
+
 function WarrantySelectField({
     control,
     name,
     options,
-}: {
-    control: Control<CreateModelWarrantyForm>;
-    name: "warrantyPeriodUnit" | "ruleType";
-    options: readonly string[];
-}) {
+}: WarrantySelectFieldProps) {
     return (
         <Controller
             control={control}
             name={name}
             render={({ field }) => (
                 <Select
-                    value={field.value}
+                    value={field.value ?? ""}
                     onValueChange={field.onChange}
                 >
                     <SelectTrigger className="w-full">

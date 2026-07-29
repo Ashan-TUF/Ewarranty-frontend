@@ -215,7 +215,7 @@ export function MachineFilterBar({ values, onChange }: MachineFilterBarProps) {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="TimeOnly">Time Only</SelectItem>
-                                        <SelectItem value="CopyOnly">Copy Only</SelectItem>
+                                        <SelectItem value="TimeOrCopies">Time or Copies</SelectItem>
                                         <SelectItem value="TimeOrHours">
                                             Time or Hours
                                         </SelectItem>

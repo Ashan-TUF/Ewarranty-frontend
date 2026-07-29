@@ -18,7 +18,7 @@ import {
 import {
     createWarrantyTypeSchema,
     type CreateWarrantyTypeForm,
-} from "../schemas/warranty-type.schema";
+} from "../../schemas/warranty-type.schema";
 
 interface AddWarrantyTypeDialogProps {
     open: boolean;

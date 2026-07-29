@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -24,6 +25,11 @@ type ThemeContextValue = {
 };
 
 const THEME_STORAGE_KEY = "eWarranty-theme";
+const THEME_TRANSITION_DURATION_MS = 220;
+
+type DocumentWithViewTransition = Document & {
+  startViewTransition?: (updateCallback: () => void) => void;
+};
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
@@ -58,6 +64,8 @@ export function useTheme() {
 export default function ThemeProvider({
   children,
 }: Props) {
+  const transitionTimeoutRef = useRef<number | null>(null);
+
   const [theme, setThemeState] = useState<ThemeMode>(() => {
     if (typeof window === "undefined") {
       return "light";
@@ -71,6 +79,34 @@ export default function ThemeProvider({
 
     return getSystemTheme();
   });
+
+  const applyThemeWithTransition = useCallback((nextTheme: ThemeMode) => {
+    const root = document.documentElement;
+    root.classList.add("theme-animating");
+
+    if (transitionTimeoutRef.current !== null) {
+      window.clearTimeout(transitionTimeoutRef.current);
+    }
+
+    transitionTimeoutRef.current = window.setTimeout(() => {
+      root.classList.remove("theme-animating");
+      transitionTimeoutRef.current = null;
+    }, THEME_TRANSITION_DURATION_MS);
+
+    const updateThemeState = () => {
+      setThemeState(nextTheme);
+      window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    };
+
+    const documentWithViewTransition = document as DocumentWithViewTransition;
+
+    if (typeof documentWithViewTransition.startViewTransition === "function") {
+      documentWithViewTransition.startViewTransition(updateThemeState);
+      return;
+    }
+
+    updateThemeState();
+  }, []);
 
   useEffect(() => {
     applyTheme(theme);
@@ -93,15 +129,26 @@ export default function ThemeProvider({
     };
   }, [theme]);
 
-  const setTheme = useCallback((nextTheme: ThemeMode) => {
-    setThemeState(nextTheme);
-    applyTheme(nextTheme);
-    window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+  useEffect(() => {
+    return () => {
+      if (transitionTimeoutRef.current !== null) {
+        window.clearTimeout(transitionTimeoutRef.current);
+      }
+
+      if (typeof document !== "undefined") {
+        document.documentElement.classList.remove("theme-animating");
+      }
+    };
   }, []);
 
+  const setTheme = useCallback((nextTheme: ThemeMode) => {
+    applyThemeWithTransition(nextTheme);
+  }, [applyThemeWithTransition]);
+
   const toggleTheme = useCallback(() => {
-    setTheme((theme === "dark" ? "light" : "dark") as ThemeMode);
-  }, [setTheme, theme]);
+    const nextTheme = (theme === "dark" ? "light" : "dark") as ThemeMode;
+    applyThemeWithTransition(nextTheme);
+  }, [applyThemeWithTransition, theme]);
 
   const value = useMemo<ThemeContextValue>(() => ({
     theme,

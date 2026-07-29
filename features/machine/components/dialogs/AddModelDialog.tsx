@@ -26,20 +26,27 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
+import type {
+    CreateMachineModelRequest,
+} from "../../types/machine";
+
 import {
     colorTypeOptions,
     createMachineModelSchema,
     networkTypeOptions,
     type CreateMachineModelForm,
-} from "../schemas/machine-model.schema";
+} from "../../schemas/machine-model.schema";
+import { useCreateMachineModel } from "../../hooks/useCreateMachineModel";
 
 interface AddModelDialogProps {
     machineCode: string;
-    onAdd: (model: CreateMachineModelForm) => void;
 }
 
-export function AddModelDialog({ machineCode, onAdd }: AddModelDialogProps) {
+export function AddModelDialog({
+    machineCode,
+}: AddModelDialogProps) {
     const [open, setOpen] = useState(false);
+    const createModel = useCreateMachineModel();
 
     const {
         register,
@@ -58,9 +65,26 @@ export function AddModelDialog({ machineCode, onAdd }: AddModelDialogProps) {
     });
 
     async function onSubmit(values: CreateMachineModelForm) {
-        onAdd(values);
-        reset();
-        setOpen(false);
+        try {
+            const request: CreateMachineModelRequest = {
+                machineCode,
+                modelName: values.modelName.trim(),
+                description: values.description?.trim() || undefined,
+                colorType: values.colorType
+                    ? (values.colorType as "Color" | "Monochrome")
+                    : undefined,
+                networkType: values.networkType
+                    ? (values.networkType as "USB" | "Network" | "Wireless")
+                    : undefined,
+            };
+
+            await createModel.mutateAsync(request);
+
+            reset();
+            setOpen(false);
+        } catch {
+            // Handle error if needed
+        }
     }
 
     return (
@@ -99,7 +123,7 @@ export function AddModelDialog({ machineCode, onAdd }: AddModelDialogProps) {
                             placeholder="e.g. IM C3001"
                             className={cn(
                                 errors.modelName &&
-                                    "border-destructive focus-visible:ring-destructive"
+                                "border-destructive focus-visible:ring-destructive"
                             )}
                             {...register("modelName")}
                         />
