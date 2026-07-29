@@ -1,14 +1,37 @@
-import api from "@/lib/axios";
+import axiosClient from "@/lib/axios";
 import { API } from "@/constants/api";
-import { ApiResponse, CreateMachineRequest, MachineApiResponse } from "../types/machine";
+import type { ApiResponse } from "@/types/api";
+
+import type {
+    CreateMachineRequest,
+    MachineResponse,
+    PagedResponse,
+} from "../types/machine";
+
+export interface MachineSearchRequest {
+    machineCode?: string;
+    page?: number;
+    pageSize?: number;
+}
+
+export async function getMachines(
+    params: MachineSearchRequest
+): Promise<PagedResponse<MachineResponse>> {
+    const response = await axiosClient.get<
+        ApiResponse<PagedResponse<MachineResponse>>
+    >(API.MACHINE, {
+        params,
+    });
+
+    return response.data.data;
+}
 
 export async function createMachine(
     request: CreateMachineRequest
-) {
-    const { data } = await api.post<ApiResponse<MachineApiResponse>>(
-        API.MACHINE,
-        request
-    );
+): Promise<MachineResponse> {
+    const response = await axiosClient.post<
+        ApiResponse<MachineResponse>
+    >(API.MACHINE, request);
 
-    return data;
+    return response.data.data;
 }

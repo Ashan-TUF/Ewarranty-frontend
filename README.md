@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# eWarranty Frontend
 
-## Getting Started
+Next.js App Router frontend for machine, model, and warranty management.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Next.js 16 + React 19
+- TypeScript
+- Tailwind CSS v4
+- TanStack Query
+- Zustand
+- Framer Motion
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- npm run dev: Start development server
+- npm run build: Production build
+- npm run start: Run production server
+- npm run lint: Run ESLint
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure
 
-## Learn More
+- app: Route layer (thin page wrappers)
+- features: Domain modules (UI, hooks, services, schemas, types)
+- components: Shared UI and layout components
+- providers: App-wide providers (theme, query)
+- lib: Core utilities and API clients
+- constants: Routes and API constants
+- hooks: Cross-feature shared hooks
+- types: Global shared types
 
-To learn more about Next.js, take a look at the following resources:
+## Architecture Rules
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Keep route files in app thin. They should only map route params and render feature pages.
+- Put domain logic inside features/<domain>.
+- Use barrel exports for feature public API. Prefer imports from feature root (example: @/features/machine).
+- Keep service modules inside each feature unless shared by multiple features.
+- Shared UI goes in components/ui. Feature-specific UI goes in features/<domain>/components.
+- Prefer hooks for server state and mutation logic. Keep page components focused on composition.
+- Keep schemas close to feature forms and requests.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Current Feature Pattern (Machine)
 
-## Deploy on Vercel
+- features/machine/components: Presentation
+- features/machine/hooks: Query and mutation orchestration
+- features/machine/services: API calls
+- features/machine/schemas: Zod validation
+- features/machine/types: Feature-owned data contracts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Quality Checklist
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Route-level pages should not contain business logic.
+- No duplicate service layers across root and feature folders.
+- Keep imports consistent through barrel exports when available.
+- Add loading, error, and empty states for every async page.
+- Run npm run lint before each commit.
+
+## Next Refactor Targets
+
+- Standardize API client usage in feature services (single style, axios or fetch wrapper).
+- Add shared error mapper for service-level errors.
+- Add feature-level tests for hooks and critical page flows.

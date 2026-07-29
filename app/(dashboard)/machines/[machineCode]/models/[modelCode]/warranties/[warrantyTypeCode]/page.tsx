@@ -1,4 +1,4 @@
-import WarrantyDetailsPage from "@/features/machine/pages/WarrantyDetailsPage";
+import { WarrantyDetailsPage } from "@/features/machine/pages";
 
 interface PageProps {
     params: Promise<{

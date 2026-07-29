@@ -1,4 +1,4 @@
-import MachineDetailsPage from "@/features/machine/pages/MachineDetailsPage";
+import { MachineDetailsPage } from "@/features/machine/pages";
 
 interface PageProps {
     params: Promise<{ machineCode: string }>;

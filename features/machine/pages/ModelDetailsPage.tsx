@@ -1,29 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import {
-    ArrowLeft,
-    ArrowRight,
-    ShieldCheck,
-    ShieldX,
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import AppHeader from "@/components/layout/AppHeader";
-import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
 import { ROUTES } from "@/constants/routes";
-import { cn } from "@/lib/utils";
 
-import { demoMachines } from "../data/demo-machines";
-import { MachinePagination } from "../components/MachinePagination";
+import {
+    AddWarrantyDialog,
+    ModelSummaryCard,
+    ModelWarrantyList,
+    PageState,
+} from "@/features/machine/components";
+import { useMachine } from "@/features/machine/hooks";
 
 interface ModelDetailsPageProps {
     machineCode: string;
@@ -34,45 +24,49 @@ export default function ModelDetailsPage({
     machineCode,
     modelCode,
 }: ModelDetailsPageProps) {
-    const machine = demoMachines.find((m) => m.machineCode === machineCode);
-    const model = machine?.models.find((m) => m.modelCode === modelCode);
+    const [isAddWarrantyOpen, setIsAddWarrantyOpen] =
+        useState(false);
 
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
+    const {
+        data: machine,
+        isLoading,
+        isError,
+    } = useMachine(machineCode);
 
-    if (!machine || !model) {
+    if (isLoading) {
         return (
             <>
-                <AppHeader title="Model not found" />
-                <main className="p-6">
-                    <div className="rounded-xl border border-dashed py-16 text-center">
-                        <p className="font-medium">
-                            No model found with code{" "}
-                            <span className="font-mono">{modelCode}</span>
-                        </p>
-                        <Link
-                            href={ROUTES.MACHINE_DETAILS(machineCode)}
-                            className="mt-3 inline-block text-sm text-primary hover:underline"
-                        >
-                            Back to machine
-                        </Link>
-                    </div>
+                <AppHeader title="Loading..." />
+                <main className="p-4 sm:p-6">
+                    <PageState
+                        title="Loading model details..."
+                        description="Fetching related machine information."
+                    />
                 </main>
             </>
         );
     }
 
-    const totalPages = Math.max(1, Math.ceil(model.warranties.length / pageSize));
-    const currentPage = Math.min(page, totalPages);
+    if (isError || !machine) {
+        return (
+            <ModelNotFound
+                machineCode={machineCode}
+                modelCode={modelCode}
+            />
+        );
+    }
 
-    const paginatedWarranties = useMemo(() => {
-        const start = (currentPage - 1) * pageSize;
-        return model.warranties.slice(start, start + pageSize);
-    }, [model.warranties, currentPage, pageSize]);
+    const model = machine.models.find(
+        (m) => m.modelCode === modelCode
+    );
 
-    function handlePageSizeChange(next: number) {
-        setPageSize(next);
-        setPage(1);
+    if (!model) {
+        return (
+            <ModelNotFound
+                machineCode={machineCode}
+                modelCode={modelCode}
+            />
+        );
     }
 
     return (
@@ -82,121 +76,62 @@ export default function ModelDetailsPage({
                 description={`Model details and warranties for ${model.modelCode}.`}
             />
 
-            <main className="space-y-6 p-6">
+            <main className="space-y-6 p-4 sm:p-6">
                 <Link
                     href={ROUTES.MACHINE_DETAILS(machineCode)}
-                    className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
                 >
                     <ArrowLeft className="size-4" />
                     Back to {machine.machineName}
                 </Link>
 
-                <Card className="border-border/70 bg-card/80 shadow-sm backdrop-blur">
-                    <CardHeader>
-                        <div className="flex items-start justify-between gap-3">
-                            <div>
-                                <Badge variant="outline" className="font-mono text-[11px]">
-                                    {model.modelCode}
-                                </Badge>
-                                <CardTitle className="mt-1.5 text-xl">
-                                    {model.modelName}
-                                </CardTitle>
-                                <CardDescription className="mt-1">
-                                    {machine.machineName} &middot; {machine.machineCode}
-                                </CardDescription>
-                            </div>
+                <ModelSummaryCard
+                    machine={machine}
+                    model={model}
+                    onAddWarranty={() =>
+                        setIsAddWarrantyOpen(true)
+                    }
+                />
 
-                            <div className="flex flex-wrap justify-end gap-1.5">
-                                {model.colorType && (
-                                    <Badge variant="secondary">{model.colorType}</Badge>
-                                )}
-                                {model.networkType && (
-                                    <Badge variant="secondary">{model.networkType}</Badge>
-                                )}
-                            </div>
-                        </div>
-                    </CardHeader>
+                <ModelWarrantyList
+                    machineCode={machine.machineCode}
+                    modelCode={model.modelCode}
+                    warranties={model.warranties}
+                />
+            </main>
 
-                    {model.description && (
-                        <CardContent>
-                            <p className="text-sm text-muted-foreground">
-                                {model.description}
-                            </p>
-                        </CardContent>
-                    )}
-                </Card>
+            <AddWarrantyDialog
+                machineCode={machine.machineCode}
+                modelCode={model.modelCode}
+                open={isAddWarrantyOpen}
+                onOpenChange={setIsAddWarrantyOpen}
+            />
+        </>
+    );
+}
 
-                <section className="space-y-3">
-                    <h2 className="text-sm font-semibold text-muted-foreground">
-                        Warranties ({model.warranties.length})
-                    </h2>
+interface ModelNotFoundProps {
+    machineCode: string;
+    modelCode: string;
+}
 
-                    {model.warranties.length === 0 ? (
-                        <div className="rounded-xl border border-dashed py-12 text-center">
-                            <p className="font-medium">No warranties added yet</p>
-                            <p className="text-sm text-muted-foreground">
-                                Add a warranty for this model to see it listed here.
-                            </p>
-                        </div>
-                    ) : (
-                        <>
-                            <div className="space-y-2">
-                                {paginatedWarranties.map((warranty) => (
-                                    <Link
-                                        key={warranty.warrantyTypeCode}
-                                        href={ROUTES.MACHINE_MODEL_WARRANTY_DETAILS(
-                                            machineCode,
-                                            modelCode,
-                                            warranty.warrantyTypeCode
-                                        )}
-                                        className="flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-card/80 p-4 shadow-sm backdrop-blur transition-colors hover:bg-muted/40"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            {warranty.isActive ? (
-                                                <ShieldCheck className="size-5 text-emerald-500" />
-                                            ) : (
-                                                <ShieldX className="size-5 text-muted-foreground" />
-                                            )}
+function ModelNotFound({
+    machineCode,
+    modelCode,
+}: ModelNotFoundProps) {
+    return (
+        <>
+            <AppHeader
+                title="Model not found"
+                description="The requested machine model could not be found."
+            />
 
-                                            <div>
-                                                <p className="font-medium">
-                                                    {warranty.warrantyTypeName}
-                                                </p>
-                                                <p className="text-sm text-muted-foreground">
-                                                    {warranty.warrantyTypeCode} &middot;{" "}
-                                                    {warranty.warrantyPeriod}{" "}
-                                                    {warranty.warrantyPeriodUnit}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div
-                                            className={cn(
-                                                buttonVariants({
-                                                    variant: "ghost",
-                                                    size: "icon-sm",
-                                                })
-                                            )}
-                                            aria-label="View warranty details"
-                                        >
-                                            <ArrowRight className="size-4" />
-                                        </div>
-                                    </Link>
-                                ))}
-                            </div>
-
-                            {model.warranties.length > pageSize && (
-                                <MachinePagination
-                                    page={currentPage}
-                                    pageSize={pageSize}
-                                    totalItems={model.warranties.length}
-                                    onPageChange={setPage}
-                                    onPageSizeChange={handlePageSizeChange}
-                                />
-                            )}
-                        </>
-                    )}
-                </section>
+            <main className="p-6">
+                <PageState
+                    title={`No model found with code ${modelCode}`}
+                    actionLabel="Back to machine"
+                    actionHref={ROUTES.MACHINE_DETAILS(machineCode)}
+                />
             </main>
         </>
     );

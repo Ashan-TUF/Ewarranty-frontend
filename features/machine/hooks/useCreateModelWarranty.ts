@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 
 import type { CreateModelWarrantyForm } from "../schemas/model-warranty.schema";
-import { createModelWarranty } from "../services/warranty.service";
+import { createModelWarranty } from "../services";
 
 export function useCreateModelWarranty(
     machineCode: string,

@@ -3,7 +3,7 @@ import {
     useQueryClient,
 } from "@tanstack/react-query";
 
-import { createWarrantyType } from "../services/warranty.service";
+import { createWarrantyType } from "../services";
 
 export function useCreateWarrantyType() {
     const queryClient = useQueryClient();
