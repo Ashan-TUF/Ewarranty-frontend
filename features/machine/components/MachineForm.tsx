@@ -13,8 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ROUTES } from "@/constants/routes";
 
 import { useCreateMachine } from "../hooks/useCreateMachine";
+import { useMachineCategories } from "../hooks/useMachineCategories";
 import { createMachineSchema, MachineCategory, type CreateMachineForm } from "../schemas/machine.schema";
-import { machineCategoryOptions } from "../types/machine";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -22,6 +22,11 @@ import { cn } from "@/lib/utils";
 export default function MachineForm() {
     const router = useRouter();
     const createMachineMutation = useCreateMachine();
+    const {
+        data: machineCategories = [],
+        isLoading: isMachineCategoriesLoading,
+        isError: isMachineCategoriesError,
+    } = useMachineCategories();
 
     const {
         control,
@@ -127,6 +132,7 @@ export default function MachineForm() {
                             render={({ field }) => (
                                 <Select
                                     value={field.value ?? ""}
+                                    disabled={isMachineCategoriesLoading || isMachineCategoriesError}
                                     onValueChange={field.onChange}
                                 >
                                     <SelectTrigger
@@ -137,14 +143,27 @@ export default function MachineForm() {
                                     </SelectTrigger>
 
                                     <SelectContent>
-                                        {machineCategoryOptions.map((category) => (
-                                            <SelectItem
-                                                key={category}
-                                                value={category}
-                                            >
-                                                {category}
+                                        {isMachineCategoriesLoading && (
+                                            <SelectItem value="__loading" disabled>
+                                                Loading categories...
                                             </SelectItem>
-                                        ))}
+                                        )}
+
+                                        {isMachineCategoriesError && (
+                                            <SelectItem value="__error" disabled>
+                                                Failed to load categories
+                                            </SelectItem>
+                                        )}
+
+                                        {!isMachineCategoriesLoading && !isMachineCategoriesError &&
+                                            machineCategories.map((category) => (
+                                                <SelectItem
+                                                    key={category.id}
+                                                    value={category.name}
+                                                >
+                                                    {category.name}
+                                                </SelectItem>
+                                            ))}
                                     </SelectContent>
                                 </Select>
                             )}

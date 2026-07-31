@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { AxiosError } from "axios";
 import {
     Controller,
     useForm,
@@ -9,6 +10,7 @@ import {
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +39,7 @@ import {
 } from "../../schemas/model-warranty.schema";
 
 import type { CreateWarrantyTypeForm } from "../../schemas/warranty-type.schema";
+import type { WarrantyTypeOption } from "../../types/warranty.types";
 
 import { useWarrantyTypes } from "../../hooks/useWarrantyTypes";
 import { useCreateWarrantyType } from "../../hooks/useCreateWarrantyType";
@@ -59,11 +62,27 @@ export function AddWarrantyDialog({
 }: AddWarrantyDialogProps) {
     const [warrantyTypeOpen, setWarrantyTypeOpen] =
         useState(false);
+    const [createdWarrantyType, setCreatedWarrantyType] =
+        useState<WarrantyTypeOption | null>(null);
 
     const {
         data: warrantyTypes = [],
         isLoading: isLoadingWarrantyTypes,
     } = useWarrantyTypes();
+
+    const warrantyTypeOptions = useMemo(() => {
+        if (!createdWarrantyType) {
+            return warrantyTypes;
+        }
+
+        const exists = warrantyTypes.some(
+            (type) => type.warrantyTypeCode === createdWarrantyType.warrantyTypeCode
+        );
+
+        return exists
+            ? warrantyTypes
+            : [createdWarrantyType, ...warrantyTypes];
+    }, [createdWarrantyType, warrantyTypes]);
 
     const createWarranty =
         useCreateModelWarranty(machineCode, modelCode);
@@ -76,6 +95,7 @@ export function AddWarrantyDialog({
         handleSubmit,
         reset,
         control,
+        setError,
         setValue,
         formState: { errors },
     } = useForm<CreateModelWarrantyForm>({
@@ -100,36 +120,91 @@ export function AddWarrantyDialog({
         values: CreateModelWarrantyForm
     ) {
         try {
-            await createWarranty.mutateAsync(values);
+            const payload: CreateModelWarrantyForm = {
+                ...values,
+                description: values.description?.trim() || undefined,
+                warrantyCopyLimit:
+                    values.ruleType === "TimeOrCopies"
+                        ? values.warrantyCopyLimit
+                        : undefined,
+                warrantyHourLimit:
+                    values.ruleType === "TimeOrHours"
+                        ? values.warrantyHourLimit
+                        : undefined,
+            };
+
+            await createWarranty.mutateAsync(payload);
+
+            toast.success("Model warranty created successfully.");
 
             reset();
             onOpenChange(false);
-        } catch {
-            // Mutation hook can handle API error/toast.
-            // Keep the dialog open so the user can correct/retry.
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                const message = error.response?.data?.message as string | undefined;
+                toast.error(message || "Failed to create model warranty.");
+                return;
+            }
+
+            if (error instanceof Error) {
+                const validationErrors = (
+                    error as Error & {
+                        validationErrors?: Record<string, string[]>;
+                    }
+                ).validationErrors;
+
+                if (validationErrors) {
+                    let firstServerError: string | undefined;
+
+                    Object.entries(validationErrors).forEach(([field, messages]) => {
+                        if (!firstServerError && messages[0]) {
+                            firstServerError = messages[0];
+                        }
+
+                        setError(field as keyof CreateModelWarrantyForm, {
+                            type: "server",
+                            message: messages[0],
+                        });
+                    });
+
+                    toast.error(firstServerError || error.message);
+                    return;
+                }
+
+                toast.error(error.message);
+                return;
+            }
+
+            toast.error("Failed to create model warranty.");
+        }
+    }
+
+    function onInvalid(formErrors: typeof errors) {
+        const firstError = Object.values(formErrors)[0]?.message;
+
+        if (firstError) {
+            toast.error(firstError as string);
         }
     }
 
     async function handleCreateWarrantyType(
         values: CreateWarrantyTypeForm
     ) {
-        try {
-            const created =
-                await createWarrantyType.mutateAsync(values);
+        const created =
+            await createWarrantyType.mutateAsync(values);
 
-            setValue(
-                "warrantyTypeCode",
-                created.warrantyTypeCode,
-                {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                }
-            );
+        setCreatedWarrantyType(created);
 
-            setWarrantyTypeOpen(false);
-        } catch {
-            // Keep nested dialog open on failure.
-        }
+        setValue(
+            "warrantyTypeCode",
+            created.warrantyTypeCode,
+            {
+                shouldValidate: true,
+                shouldDirty: true,
+            }
+        );
+
+        setWarrantyTypeOpen(false);
     }
 
     function handleDialogOpenChange(
@@ -140,6 +215,7 @@ export function AddWarrantyDialog({
         if (!nextOpen) {
             reset();
             setWarrantyTypeOpen(false);
+            setCreatedWarrantyType(null);
         }
     }
 
@@ -175,7 +251,7 @@ export function AddWarrantyDialog({
                     <form
                         id="add-warranty-form"
                         className="space-y-4"
-                        onSubmit={handleSubmit(onSubmit)}
+                        onSubmit={handleSubmit(onSubmit, onInvalid)}
                     >
                         {/* Warranty Type */}
                         <div className="space-y-1.5">
@@ -200,46 +276,44 @@ export function AddWarrantyDialog({
                             <Controller
                                 control={control}
                                 name="warrantyTypeCode"
-                                render={({ field }) => (
-                                    <Select
-                                        value={field.value ?? ""}
-                                        onValueChange={
-                                            field.onChange
-                                        }
-                                        disabled={
-                                            isLoadingWarrantyTypes
-                                        }
-                                    >
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue
-                                                placeholder={
-                                                    isLoadingWarrantyTypes
-                                                        ? "Loading warranty types..."
-                                                        : "Select warranty type"
-                                                }
-                                            />
-                                        </SelectTrigger>
+                                render={({ field }) => {
+                                    const selectedType = warrantyTypeOptions.find(
+                                        (type) => type.warrantyTypeCode === field.value
+                                    );
 
-                                        <SelectContent>
-                                            {warrantyTypes.map(
-                                                (type) => (
+                                    return (
+                                        <Select
+                                            value={field.value ?? ""}
+                                            onValueChange={field.onChange}
+                                            disabled={isLoadingWarrantyTypes}
+                                        >
+                                            <SelectTrigger className="w-full">
+                                                {selectedType ? (
+                                                    <span>{selectedType.warrantyTypeName}</span>
+                                                ) : (
+                                                    <SelectValue
+                                                        placeholder={
+                                                            isLoadingWarrantyTypes
+                                                                ? "Loading warranty types..."
+                                                                : "Select warranty type"
+                                                        }
+                                                    />
+                                                )}
+                                            </SelectTrigger>
+
+                                            <SelectContent>
+                                                {warrantyTypeOptions.map((type) => (
                                                     <SelectItem
-                                                        key={
-                                                            type.warrantyTypeCode
-                                                        }
-                                                        value={
-                                                            type.warrantyTypeCode
-                                                        }
+                                                        key={type.warrantyTypeCode}
+                                                        value={type.warrantyTypeCode}
                                                     >
-                                                        {
-                                                            type.warrantyTypeName
-                                                        }
+                                                        {type.warrantyTypeName}
                                                     </SelectItem>
-                                                )
-                                            )}
-                                        </SelectContent>
-                                    </Select>
-                                )}
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    );
+                                }}
                             />
 
                             {errors.warrantyTypeCode && (

@@ -8,6 +8,7 @@ import {
     Clock,
     Copy,
     Gauge,
+    Plus,
     RotateCcw,
     ShieldCheck,
     ShieldX,
@@ -37,9 +38,12 @@ import type {
     MachineModelResponse,
     WarrantyResponse,
 } from "../../types/machine";
+import type { CreateWarrantyTypeForm } from "../../schemas/warranty-type.schema";
 
 import { MachinePagination } from "../MachinePagination";
 import { useWarrantyTypes } from "../../hooks/useWarrantyTypes";
+import { useCreateWarrantyType } from "../../hooks/useCreateWarrantyType";
+import { AddWarrantyTypeDialog } from "./AddWarrantyTypeDialog";
 
 /* =========================================================
    HELPERS
@@ -82,6 +86,9 @@ export function ModelDetailsDialog({
     open,
     onOpenChange,
 }: ModelDetailsDialogProps) {
+    const [warrantyTypeOpen, setWarrantyTypeOpen] =
+        useState(false);
+
     /* ---------------------------------------------------------
        Detail View
     --------------------------------------------------------- */
@@ -121,6 +128,8 @@ export function ModelDetailsDialog({
         isLoading: isWarrantyTypesLoading,
     } = useWarrantyTypes();
 
+    const createWarrantyType = useCreateWarrantyType();
+
     /* ---------------------------------------------------------
        Model Warranties
     --------------------------------------------------------- */
@@ -128,6 +137,32 @@ export function ModelDetailsDialog({
     const warranties = useMemo(
         () => model?.warranties ?? [],
         [model]
+    );
+
+    const warrantyTypeFilterOptions = useMemo(() => {
+        const typeMap = new Map<string, { code: string; name: string }>();
+
+        warrantyTypes.forEach((type) => {
+            typeMap.set(type.warrantyTypeCode, {
+                code: type.warrantyTypeCode,
+                name: type.warrantyTypeName,
+            });
+        });
+
+        warranties.forEach((warranty) => {
+            if (!typeMap.has(warranty.warrantyTypeCode)) {
+                typeMap.set(warranty.warrantyTypeCode, {
+                    code: warranty.warrantyTypeCode,
+                    name: warranty.warrantyTypeName,
+                });
+            }
+        });
+
+        return Array.from(typeMap.values());
+    }, [warranties, warrantyTypes]);
+
+    const selectedWarrantyType = warrantyTypeFilterOptions.find(
+        (type) => type.code === warrantyTypeCode
     );
 
     const selectedWarranty = warranties.find(
@@ -275,12 +310,22 @@ export function ModelDetailsDialog({
         setPage(1);
     }
 
+    async function handleCreateWarrantyType(
+        values: CreateWarrantyTypeForm
+    ) {
+        const created = await createWarrantyType.mutateAsync(values);
+        setWarrantyTypeCode(created.warrantyTypeCode);
+        setPage(1);
+        setWarrantyTypeOpen(false);
+    }
+
     function handleOpenChange(next: boolean) {
         onOpenChange(next);
 
         if (!next) {
             setSelectedWarrantyCode(null);
             resetWarrantyFilters();
+            setWarrantyTypeOpen(false);
         }
     }
 
@@ -398,17 +443,31 @@ export function ModelDetailsDialog({
                                         </div>
                                     </div>
 
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={
-                                            resetWarrantyFilters
-                                        }
-                                    >
-                                        <RotateCcw className="size-3.5" />
-                                        Reset
-                                    </Button>
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() =>
+                                                setWarrantyTypeOpen(true)
+                                            }
+                                        >
+                                            <Plus className="size-3.5" />
+                                            Add Type
+                                        </Button>
+
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={
+                                                resetWarrantyFilters
+                                            }
+                                        >
+                                            <RotateCcw className="size-3.5" />
+                                            Reset
+                                        </Button>
+                                    </div>
                                 </div>
 
                                 <div className="space-y-4">
@@ -431,43 +490,38 @@ export function ModelDetailsDialog({
                                             }
                                         >
                                             <SelectTrigger className="w-full">
-                                                <SelectValue
-                                                    placeholder={
-                                                        isWarrantyTypesLoading
-                                                            ? "Loading warranty types..."
-                                                            : "Select warranty type"
-                                                    }
-                                                />
+                                                {selectedWarrantyType ? (
+                                                    <span>{selectedWarrantyType.name}</span>
+                                                ) : (
+                                                    <SelectValue
+                                                        placeholder={
+                                                            isWarrantyTypesLoading
+                                                                ? "Loading warranty types..."
+                                                                : "Select warranty type"
+                                                        }
+                                                    />
+                                                )}
                                             </SelectTrigger>
 
                                             <SelectContent>
-                                                {warrantyTypes.map(
+                                                {warrantyTypeFilterOptions.map(
                                                     (warrantyType) => (
                                                         <SelectItem
                                                             key={
-                                                                warrantyType.warrantyTypeCode
+                                                                warrantyType.code
                                                             }
                                                             value={
-                                                                warrantyType.warrantyTypeCode
+                                                                warrantyType.code
                                                             }
                                                         >
                                                             {
-                                                                warrantyType.warrantyTypeName
+                                                                warrantyType.name
                                                             }
                                                         </SelectItem>
                                                     )
                                                 )}
                                             </SelectContent>
                                         </Select>
-
-                                        {warrantyTypeCode && (
-                                            <p className="text-xs text-muted-foreground">
-                                                Selected code:{" "}
-                                                <span className="font-mono">
-                                                    {warrantyTypeCode}
-                                                </span>
-                                            </p>
-                                        )}
                                     </div>
 
                                     {/* =================================================
@@ -702,6 +756,12 @@ export function ModelDetailsDialog({
                     </>
                 )}
             </DialogContent>
+
+            <AddWarrantyTypeDialog
+                open={warrantyTypeOpen}
+                onOpenChange={setWarrantyTypeOpen}
+                onSubmit={handleCreateWarrantyType}
+            />
         </Dialog>
     );
 }

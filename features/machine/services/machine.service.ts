@@ -3,6 +3,7 @@ import { API } from "@/constants/api";
 import type { ApiResponse } from "@/types/api";
 
 import type {
+    MachineCategoryOption,
     CreateMachineRequest,
     MachineResponse,
     PagedResponse,
@@ -32,6 +33,14 @@ export async function createMachine(
     const response = await axiosClient.post<
         ApiResponse<MachineResponse>
     >(API.MACHINE, request);
+
+    return response.data.data;
+}
+
+export async function getMachineCategories(): Promise<MachineCategoryOption[]> {
+    const response = await axiosClient.get<
+        ApiResponse<MachineCategoryOption[]>
+    >(`${API.MACHINE_CATEGORY}`);
 
     return response.data.data;
 }

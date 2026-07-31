@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { AxiosError } from "axios";
 import { Controller, useForm, type Control } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,15 +30,16 @@ import { cn } from "@/lib/utils";
 
 import type {
     CreateMachineModelRequest,
+    MachineMetadataOption,
 } from "../../types/machine";
 
 import {
-    colorTypeOptions,
     createMachineModelSchema,
-    networkTypeOptions,
     type CreateMachineModelForm,
 } from "../../schemas/machine-model.schema";
 import { useCreateMachineModel } from "../../hooks/useCreateMachineModel";
+import { useMachineColorTypes } from "../../hooks/useMachineColorTypes";
+import { useMachineNetworkTypes } from "../../hooks/useMachineNetworkTypes";
 
 interface AddModelDialogProps {
     machineCode: string;
@@ -47,12 +50,23 @@ export function AddModelDialog({
 }: AddModelDialogProps) {
     const [open, setOpen] = useState(false);
     const createModel = useCreateMachineModel();
+    const {
+        data: colorTypes = [],
+        isLoading: isColorTypesLoading,
+        isError: isColorTypesError,
+    } = useMachineColorTypes();
+    const {
+        data: networkTypes = [],
+        isLoading: isNetworkTypesLoading,
+        isError: isNetworkTypesError,
+    } = useMachineNetworkTypes();
 
     const {
         register,
         handleSubmit,
         reset,
         control,
+        setError,
         formState: { errors, isSubmitting },
     } = useForm<CreateMachineModelForm>({
         resolver: zodResolver(createMachineModelSchema),
@@ -64,6 +78,18 @@ export function AddModelDialog({
         },
     });
 
+    useEffect(() => {
+        if (open && isColorTypesError) {
+            toast.error("Failed to load machine color types.");
+        }
+    }, [isColorTypesError, open]);
+
+    useEffect(() => {
+        if (open && isNetworkTypesError) {
+            toast.error("Failed to load machine network types.");
+        }
+    }, [isNetworkTypesError, open]);
+
     async function onSubmit(values: CreateMachineModelForm) {
         try {
             const request: CreateMachineModelRequest = {
@@ -71,19 +97,49 @@ export function AddModelDialog({
                 modelName: values.modelName.trim(),
                 description: values.description?.trim() || undefined,
                 colorType: values.colorType
-                    ? (values.colorType as "Color" | "Monochrome")
+                    ? values.colorType
                     : undefined,
                 networkType: values.networkType
-                    ? (values.networkType as "USB" | "Network" | "Wireless")
+                    ? values.networkType
                     : undefined,
             };
 
-            await createModel.mutateAsync(request);
+            const createdModel = await createModel.mutateAsync(request);
+
+            toast.success(
+                `Machine model '${createdModel.modelName}' created successfully.`
+            );
 
             reset();
             setOpen(false);
-        } catch {
-            // Handle error if needed
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                const statusCode = error.response?.status;
+                const message = error.response?.data?.message as string | undefined;
+
+                if (statusCode === 409) {
+                    const duplicateMessage = message || "Machine model already exists.";
+                    setError("modelName", {
+                        type: "server",
+                        message: duplicateMessage,
+                    });
+                    toast.error(duplicateMessage);
+                    return;
+                }
+
+                toast.error(message || "Failed to create machine model.");
+                return;
+            }
+
+            toast.error("Failed to create machine model.");
+        }
+    }
+
+    function onInvalid(formErrors: typeof errors) {
+        const firstError = Object.values(formErrors)[0]?.message;
+
+        if (firstError) {
+            toast.error(firstError as string);
         }
     }
 
@@ -112,7 +168,7 @@ export function AddModelDialog({
                 <form
                     id="add-model-form"
                     className="space-y-4"
-                    onSubmit={handleSubmit(onSubmit)}
+                    onSubmit={handleSubmit(onSubmit, onInvalid)}
                 >
                     <div className="space-y-1.5">
                         <label className="text-sm font-medium" htmlFor="modelName">
@@ -127,6 +183,12 @@ export function AddModelDialog({
                             )}
                             {...register("modelName")}
                         />
+
+                        {errors.modelName?.message && (
+                            <p className="text-xs text-destructive">
+                                {errors.modelName.message}
+                            </p>
+                        )}
                     </div>
 
                     <div className="space-y-1.5">
@@ -150,8 +212,16 @@ export function AddModelDialog({
                             <ModelSelectField
                                 control={control}
                                 name="colorType"
-                                placeholder="Select"
-                                options={colorTypeOptions}
+                                placeholder={
+                                    isColorTypesLoading
+                                        ? "Loading..."
+                                        : "Select"
+                                }
+                                options={colorTypes}
+                                disabled={
+                                    isColorTypesLoading ||
+                                    isColorTypesError
+                                }
                             />
                         </div>
 
@@ -160,8 +230,16 @@ export function AddModelDialog({
                             <ModelSelectField
                                 control={control}
                                 name="networkType"
-                                placeholder="Select"
-                                options={networkTypeOptions}
+                                placeholder={
+                                    isNetworkTypesLoading
+                                        ? "Loading..."
+                                        : "Select"
+                                }
+                                options={networkTypes}
+                                disabled={
+                                    isNetworkTypesLoading ||
+                                    isNetworkTypesError
+                                }
                             />
                         </div>
                     </div>
@@ -191,25 +269,43 @@ function ModelSelectField({
     name,
     placeholder,
     options,
+    disabled,
 }: {
     control: Control<CreateMachineModelForm>;
     name: "colorType" | "networkType";
     placeholder: string;
-    options: readonly string[];
+    options: MachineMetadataOption[];
+    disabled?: boolean;
 }) {
     return (
         <Controller
             control={control}
             name={name}
             render={({ field }) => (
-                <Select value={field.value || ""} onValueChange={field.onChange}>
+                <Select
+                    value={field.value || ""}
+                    onValueChange={field.onChange}
+                    disabled={disabled}
+                >
                     <SelectTrigger className="w-full">
                         <SelectValue placeholder={placeholder} />
                     </SelectTrigger>
                     <SelectContent>
-                        {options.map((option) => (
-                            <SelectItem key={option} value={option}>
-                                {option}
+                        {disabled && (
+                            <SelectItem value="__loading" disabled>
+                                Loading options...
+                            </SelectItem>
+                        )}
+
+                        {!disabled && options.length === 0 && (
+                            <SelectItem value="__empty" disabled>
+                                No options found
+                            </SelectItem>
+                        )}
+
+                        {!disabled && options.map((option) => (
+                            <SelectItem key={option.id} value={option.name}>
+                                {option.name}
                             </SelectItem>
                         ))}
                     </SelectContent>

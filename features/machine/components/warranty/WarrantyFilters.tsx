@@ -48,6 +48,10 @@ export function WarrantyFilters({
         ).values()
     );
 
+    const selectedWarrantyType = warrantyTypes.find(
+        (type) => type.code === filters.warrantyTypeCode
+    );
+
     const updateFilter = (
         field: keyof WarrantyFilterValues,
         value: string
@@ -80,7 +84,7 @@ export function WarrantyFilters({
                                 event.target.value
                             )
                         }
-                        placeholder="Search warranty type, code, description..."
+                        placeholder="Search warranty type or description..."
                         className="pl-9"
                     />
                 </div>
@@ -108,7 +112,11 @@ export function WarrantyFilters({
                             }
                         >
                             <SelectTrigger className="w-full">
-                                <SelectValue placeholder="All warranty types" />
+                                {selectedWarrantyType ? (
+                                    <span>{selectedWarrantyType.name}</span>
+                                ) : (
+                                    <SelectValue placeholder="All warranty types" />
+                                )}
                             </SelectTrigger>
 
                             <SelectContent>
