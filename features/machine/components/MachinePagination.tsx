@@ -15,6 +15,7 @@ interface MachinePaginationProps {
     page: number;
     pageSize: number;
     totalItems: number;
+    itemLabel?: string;
     onPageChange: (page: number) => void;
     onPageSizeChange: (pageSize: number) => void;
 }
@@ -23,6 +24,7 @@ export function MachinePagination({
     page,
     pageSize,
     totalItems,
+    itemLabel = "machines",
     onPageChange,
     onPageSizeChange,
 }: MachinePaginationProps) {
@@ -38,7 +40,7 @@ export function MachinePagination({
                 Showing <span className="font-medium text-foreground">{rangeStart}</span>
                 {"–"}
                 <span className="font-medium text-foreground">{rangeEnd}</span> of{" "}
-                <span className="font-medium text-foreground">{totalItems}</span> machines
+                <span className="font-medium text-foreground">{totalItems}</span> {itemLabel}
             </p>
 
             <div className="flex flex-wrap items-center gap-3 sm:gap-4">

@@ -20,6 +20,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import AppLogo from "./AppLogo";
 
 const items = [
     {
@@ -60,8 +61,10 @@ export function AppSidebar() {
     return (
         <Sidebar>
             <SidebarContent>
-                <SidebarGroup>
-                    <SidebarGroupLabel>eWarranty</SidebarGroupLabel>
+                <SidebarGroup className="flex flex-col gap-8">
+                    <SidebarGroupLabel className="flex justify-center pt-4">
+                        <AppLogo />
+                    </SidebarGroupLabel>
 
                     <SidebarMenu>
                         {items.map((item) => (

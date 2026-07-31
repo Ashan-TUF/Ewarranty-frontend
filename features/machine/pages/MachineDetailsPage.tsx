@@ -1,20 +1,24 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 
 import AppHeader from "@/components/layout/AppHeader";
+import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
 
 import {
     AddModelDialog,
     AddWarrantyDialog,
+    AddWarrantyTypeDialog,
     MachineModelsSection,
     MachineSummaryCard,
     ModelDetailsDialog,
     PageState,
 } from "@/features/machine/components";
 import {
+    useCreateWarrantyType,
     useMachine,
     useMachineDialogs,
     useMachineModels,
@@ -27,6 +31,11 @@ interface MachineDetailsPageProps {
 export default function MachineDetailsPage({
     machineCode,
 }: MachineDetailsPageProps) {
+    const [isAddWarrantyTypeOpen, setIsAddWarrantyTypeOpen] =
+        useState(false);
+
+    const createWarrantyType = useCreateWarrantyType();
+
     const {
         data: machine,
         isLoading,
@@ -50,6 +59,7 @@ export default function MachineDetailsPage({
     const {
         keyword,
         pageSize,
+        filteredModels,
         paginatedModels,
         currentPage,
         setPage,
@@ -110,9 +120,23 @@ export default function MachineDetailsPage({
                 title={machine.machineName}
                 description={`Machine details, models, and warranties for ${machine.machineCode}.`}
                 actions={
-                    <AddModelDialog
-                        machineCode={machine.machineCode}
-                    />
+                    <div className="flex items-center gap-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                                setIsAddWarrantyTypeOpen(true)
+                            }
+                        >
+                            <Plus className="size-4" />
+                            Add Warranty Type
+                        </Button>
+
+                        <AddModelDialog
+                            machineCode={machine.machineCode}
+                        />
+                    </div>
                 }
             />
 
@@ -133,6 +157,8 @@ export default function MachineDetailsPage({
                 <MachineModelsSection
                     machine={machine}
                     models={paginatedModels}
+                    totalModels={machine.models.length}
+                    filteredModelsCount={filteredModels.length}
                     keyword={keyword}
                     page={currentPage}
                     pageSize={pageSize}
@@ -169,6 +195,14 @@ export default function MachineDetailsPage({
                     }
                 />
             )}
+
+            <AddWarrantyTypeDialog
+                open={isAddWarrantyTypeOpen}
+                onOpenChange={setIsAddWarrantyTypeOpen}
+                onSubmit={async (values) => {
+                    await createWarrantyType.mutateAsync(values);
+                }}
+            />
         </>
     );
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { Search } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -17,6 +16,8 @@ import type {
 interface MachineModelsSectionProps {
     machine: MachineResponse;
     models: MachineModelResponse[];
+    totalModels: number;
+    filteredModelsCount: number;
 
     keyword: string;
     page: number;
@@ -33,6 +34,8 @@ interface MachineModelsSectionProps {
 export function MachineModelsSection({
     machine,
     models,
+    totalModels,
+    filteredModelsCount,
 
     keyword,
     page,
@@ -45,58 +48,6 @@ export function MachineModelsSection({
     onViewDetails,
     onAddWarranty,
 }: MachineModelsSectionProps) {
-
-    const filteredModels = useMemo(() => {
-
-        const search = keyword.trim().toLowerCase();
-
-        if (!search) {
-            return models;
-        }
-
-        return models.filter((model) => {
-
-            const searchable = [
-                model.modelCode,
-                model.modelName,
-                model.description ?? "",
-                model.colorType ?? "",
-                model.networkType ?? "",
-            ]
-                .join(" ")
-                .toLowerCase();
-
-            return searchable.includes(search);
-        });
-
-    }, [models, keyword]);
-
-    const totalPages = Math.max(
-        1,
-        Math.ceil(filteredModels.length / pageSize)
-    );
-
-    const currentPage = Math.min(
-        page,
-        totalPages
-    );
-
-    const paginatedModels = useMemo(() => {
-
-        const start =
-            (currentPage - 1) * pageSize;
-
-        return filteredModels.slice(
-            start,
-            start + pageSize
-        );
-
-    }, [
-        filteredModels,
-        currentPage,
-        pageSize,
-    ]);
-
     return (
         <section className="space-y-4">
 
@@ -111,8 +62,8 @@ export function MachineModelsSection({
                     <p className="text-xs text-muted-foreground">
 
                         {keyword
-                            ? `${filteredModels.length} of ${models.length} models`
-                            : `${models.length} models`}
+                            ? `${filteredModelsCount} of ${totalModels} models`
+                            : `${totalModels} models`}
 
                     </p>
 
@@ -136,14 +87,14 @@ export function MachineModelsSection({
                 </div>
 
             </div>
-            {filteredModels.length === 0 ? (
+            {filteredModelsCount === 0 ? (
                 <ModelEmptyState
-                    hasModels={models.length > 0}
+                    hasModels={totalModels > 0}
                 />
             ) : (
                 <>
                     <div className="grid gap-4 lg:grid-cols-2">
-                        {paginatedModels.map((model) => (
+                        {models.map((model) => (
                             <ModelSummaryCard
                                 key={model.modelCode}
                                 machine={machine}
@@ -159,9 +110,10 @@ export function MachineModelsSection({
                     </div>
 
                     <MachinePagination
-                        page={currentPage}
+                        page={page}
                         pageSize={pageSize}
-                        totalItems={filteredModels.length}
+                        totalItems={filteredModelsCount}
+                        itemLabel="models"
                         onPageChange={onPageChange}
                         onPageSizeChange={
                             onPageSizeChange

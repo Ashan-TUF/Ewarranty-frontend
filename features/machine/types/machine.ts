@@ -1,9 +1,14 @@
-export type MachineCategory =
-    | "Printer"
-    | "Photocopier"
-    | "Scanner"
-    | "Projector"
-    | "Other";
+export type MachineCategory = string;
+
+export interface MachineCategoryOption {
+    id: number;
+    name: string;
+}
+
+export interface MachineMetadataOption {
+    id: number;
+    name: string;
+}
 
 export const machineCategoryOptions: MachineCategory[] = [
     "Printer",
@@ -29,8 +34,8 @@ export interface MachineModelResponse {
     modelCode: string;
     modelName: string;
     description?: string;
-    colorType?: "Color" | "Monochrome";
-    networkType?: "USB" | "Network" | "Wireless";
+    colorType?: string;
+    networkType?: string;
     isActive: boolean;
     createdAt: string;
     updatedAt?: string;
@@ -61,8 +66,8 @@ export interface CreateMachineModelRequest {
     machineCode: string;
     modelName: string;
     description?: string;
-    colorType?: "Color" | "Monochrome";
-    networkType?: "USB" | "Network" | "Wireless";
+    colorType?: string;
+    networkType?: string;
 }
 
 export interface PagedResponse<T> {

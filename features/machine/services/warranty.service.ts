@@ -2,8 +2,14 @@ import type { CreateModelWarrantyForm } from "../schemas/model-warranty.schema";
 import type { CreateWarrantyTypeForm } from "../schemas/warranty-type.schema";
 import type {
     ApiResponse,
+    ModelWarrantySummaryResponse,
     WarrantyTypeOption,
 } from "../types/warranty.types";
+
+interface ApiErrorResponse {
+    message?: string;
+    errors?: Record<string, string[]>;
+}
 
 const API_URL =
     process.env.NEXT_PUBLIC_EWARRANTY_URL ?? "http://localhost:5067";
@@ -33,7 +39,8 @@ export async function createWarrantyType(
     });
 
     if (!response.ok) {
-        throw new Error("Failed to create warranty type.");
+        const result = await response.json().catch(() => null) as ApiResponse<unknown> | null;
+        throw new Error(result?.message || "Failed to create warranty type.");
     }
 
     const result: ApiResponse<WarrantyTypeOption> =
@@ -46,7 +53,7 @@ export async function createModelWarranty(
     machineCode: string,
     modelCode: string,
     payload: CreateModelWarrantyForm
-) {
+): Promise<ModelWarrantySummaryResponse> {
     const response = await fetch(
         `${API_URL}/api/machines/${machineCode}/models/${modelCode}/warranties`,
         {
@@ -59,8 +66,18 @@ export async function createModelWarranty(
     );
 
     if (!response.ok) {
-        throw new Error("Failed to create model warranty.");
+        const result = await response.json().catch(() => null) as ApiErrorResponse | null;
+        const error = new Error(result?.message || "Failed to create model warranty.") as Error & {
+            validationErrors?: Record<string, string[]>;
+        };
+
+        if (result?.errors) {
+            error.validationErrors = result.errors;
+        }
+
+        throw error;
     }
 
-    return response.json();
+    const result = await response.json() as ApiResponse<ModelWarrantySummaryResponse>;
+    return result.data;
 }

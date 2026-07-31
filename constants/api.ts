@@ -1,5 +1,6 @@
 export const API = {
   MACHINE: "/machines",
+  MACHINE_CATEGORY: "/metadata/machine/categories",
   MACHINE_MODEL: "/machine-models",
   WARRANTY: "/warranties",
   INSTALLATION: "/installations",

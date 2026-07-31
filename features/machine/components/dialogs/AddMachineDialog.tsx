@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AxiosError } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,17 +29,22 @@ import {
 import { cn } from "@/lib/utils";
 
 import { useCreateMachine } from "../../hooks/useCreateMachine";
+import { useMachineCategories } from "../../hooks/useMachineCategories";
 import {
     createMachineSchema,
     MachineCategory,
     type CreateMachineForm,
 } from "../../schemas/machine.schema";
-import { machineCategoryOptions } from "../../types/machine";
 
 export function AddMachineDialog() {
     const [open, setOpen] = useState(false);
 
     const createMachineMutation = useCreateMachine();
+    const {
+        data: machineCategories = [],
+        isLoading: isMachineCategoriesLoading,
+        isError: isMachineCategoriesError,
+    } = useMachineCategories();
 
     const {
         control,
@@ -59,9 +64,11 @@ export function AddMachineDialog() {
         },
     });
 
-    /* =========================================================
-       DIALOG
-    ========================================================= */
+    useEffect(() => {
+        if (open && isMachineCategoriesError) {
+            toast.error("Failed to load machine categories.");
+        }
+    }, [isMachineCategoriesError, open]);
 
     function handleDialogChange(nextOpen: boolean) {
         if (createMachineMutation.isPending) {
@@ -74,10 +81,6 @@ export function AddMachineDialog() {
             reset();
         }
     }
-
-    /* =========================================================
-       SUBMIT
-    ========================================================= */
 
     async function onSubmit(values: CreateMachineForm) {
         try {
@@ -94,37 +97,65 @@ export function AddMachineDialog() {
                     undefined,
             });
 
+            toast.success("Machine added successfully.");
+
             reset();
 
             setOpen(false);
         } catch (error) {
-            if (
-                error instanceof AxiosError &&
-                error.response?.data?.errors
-            ) {
-                const data = error.response.data;
+            if (error instanceof AxiosError) {
+                const data = error.response?.data;
+                const message = data?.message as
+                    | string
+                    | undefined;
 
-                Object.entries(
-                    data.errors as Record<
-                        string,
-                        string[]
-                    >
-                ).forEach(([field, messages]) => {
-                    setError(
-                        field as keyof CreateMachineForm,
-                        {
-                            type: "server",
-                            message: messages[0],
+                if (data?.errors) {
+                    const serverErrors =
+                        data.errors as Record<
+                            string,
+                            string[]
+                        >;
+
+                    let firstServerError: string | undefined;
+
+                    Object.entries(serverErrors).forEach(
+                        ([field, messages]) => {
+                            if (
+                                !firstServerError &&
+                                messages[0]
+                            ) {
+                                firstServerError =
+                                    messages[0];
+                            }
+
+                            setError(
+                                field as keyof CreateMachineForm,
+                                {
+                                    type: "server",
+                                    message: messages[0],
+                                }
+                            );
                         }
                     );
-                });
+
+                    toast.error(
+                        firstServerError ||
+                        message ||
+                        "Failed to add machine."
+                    );
+                    return;
+                }
+
+                toast.error(
+                    message ||
+                    "Failed to add machine."
+                );
+                return;
             }
+
+            toast.error("Failed to add machine.");
         }
     }
-
-    /* =========================================================
-       INVALID FORM
-    ========================================================= */
 
     function onInvalid(formErrors: typeof errors) {
         const firstError =
@@ -135,19 +166,11 @@ export function AddMachineDialog() {
         }
     }
 
-    /* =========================================================
-       UI
-    ========================================================= */
-
     return (
         <Dialog
             open={open}
             onOpenChange={handleDialogChange}
         >
-            {/* =================================================
-                TRIGGER BUTTON
-            ================================================= */}
-
             <DialogTrigger
                 render={
                     <Button
@@ -161,10 +184,6 @@ export function AddMachineDialog() {
                 Register New Machine
             </DialogTrigger>
 
-            {/* =================================================
-                DIALOG
-            ================================================= */}
-
             <DialogContent
                 className="
                     overflow-hidden
@@ -176,10 +195,6 @@ export function AddMachineDialog() {
                     sm:max-w-2xl
                 "
             >
-                {/* =============================================
-                    MOTION CONTAINER
-                ============================================== */}
-
                 <motion.div
                     initial={{
                         opacity: 0,
@@ -198,10 +213,6 @@ export function AddMachineDialog() {
                         ease: [0.16, 1, 0.3, 1],
                     }}
                 >
-                    {/* =========================================
-                        HEADER
-                    ========================================== */}
-
                     <div className="border-b border-border/60 px-6 py-5">
                         <DialogHeader>
                             <DialogTitle className="text-xl font-semibold tracking-tight">
@@ -215,10 +226,6 @@ export function AddMachineDialog() {
                         </DialogHeader>
                     </div>
 
-                    {/* =========================================
-                        FORM
-                    ========================================== */}
-
                     <form
                         id="add-machine-form"
                         className="space-y-5 px-6 py-6"
@@ -227,12 +234,7 @@ export function AddMachineDialog() {
                             onInvalid
                         )}
                     >
-                        {/* =====================================
-                            MACHINE NAME + MANUFACTURER
-                        ====================================== */}
-
                         <div className="grid gap-5 md:grid-cols-2">
-                            {/* Machine Name */}
 
                             <div className="space-y-1.5">
                                 <label
@@ -268,8 +270,6 @@ export function AddMachineDialog() {
                                     )}
                             </div>
 
-                            {/* Manufacturer */}
-
                             <div className="space-y-1.5">
                                 <label
                                     htmlFor="manufacturer"
@@ -304,10 +304,6 @@ export function AddMachineDialog() {
                             </div>
                         </div>
 
-                        {/* =====================================
-                            CATEGORY
-                        ====================================== */}
-
                         <div className="space-y-1.5">
                             <label
                                 htmlFor="category"
@@ -324,6 +320,10 @@ export function AddMachineDialog() {
                                         value={
                                             field.value ??
                                             ""
+                                        }
+                                        disabled={
+                                            isMachineCategoriesLoading ||
+                                            isMachineCategoriesError
                                         }
                                         onValueChange={(
                                             value
@@ -346,24 +346,34 @@ export function AddMachineDialog() {
                                         </SelectTrigger>
 
                                         <SelectContent>
-                                            {machineCategoryOptions.map(
-                                                (
-                                                    category
-                                                ) => (
+                                            {isMachineCategoriesLoading && (
+                                                <SelectItem value="__loading" disabled>
+                                                    Loading categories...
+                                                </SelectItem>
+                                            )}
+
+                                            {isMachineCategoriesError && (
+                                                <SelectItem value="__error" disabled>
+                                                    Failed to load categories
+                                                </SelectItem>
+                                            )}
+
+                                            {!isMachineCategoriesLoading &&
+                                                !isMachineCategoriesError &&
+                                                machineCategories.map((category) => (
                                                     <SelectItem
                                                         key={
-                                                            category
+                                                            category.id
                                                         }
                                                         value={
-                                                            category
+                                                            category.name
                                                         }
                                                     >
                                                         {
-                                                            category
+                                                            category.name
                                                         }
                                                     </SelectItem>
-                                                )
-                                            )}
+                                                ))}
                                         </SelectContent>
                                     </Select>
                                 )}
@@ -378,10 +388,6 @@ export function AddMachineDialog() {
                                 </p>
                             )}
                         </div>
-
-                        {/* =====================================
-                            DESCRIPTION
-                        ====================================== */}
 
                         <div className="space-y-1.5">
                             <label
@@ -419,10 +425,6 @@ export function AddMachineDialog() {
                                 )}
                         </div>
                     </form>
-
-                    {/* =========================================
-                        FOOTER
-                    ========================================== */}
 
                     <div
                         className="
