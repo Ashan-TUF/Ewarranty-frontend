@@ -84,7 +84,7 @@ export function AddWarrantyTypeDialog({
                 }
             }}
         >
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md bg-background/1 backdrop-blur-3xl">
                 <DialogHeader>
                     <DialogTitle>Add Warranty Type</DialogTitle>
 

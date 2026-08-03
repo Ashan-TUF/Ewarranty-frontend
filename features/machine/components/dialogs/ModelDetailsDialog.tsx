@@ -785,10 +785,6 @@ function WarrantyView({
 }: WarrantyViewProps) {
     return (
         <>
-            {/* =================================================
-                HEADER
-            ================================================= */}
-
             <DialogHeader>
                 <Button
                     type="button"
@@ -845,24 +841,13 @@ function WarrantyView({
                     )}
                 </div>
             </DialogHeader>
-
-            {/* =================================================
-                DESCRIPTION
-            ================================================= */}
-
             {warranty.description && (
                 <p className="text-sm text-muted-foreground">
                     {warranty.description}
                 </p>
             )}
 
-            {/* =================================================
-                DETAILS
-            ================================================= */}
-
             <div className="grid gap-3 sm:grid-cols-2">
-                {/* Warranty Period */}
-
                 <div className="rounded-xl bg-muted/40 p-3">
                     <p className="text-xs uppercase tracking-wide text-muted-foreground">
                         Warranty Period
@@ -875,9 +860,6 @@ function WarrantyView({
                         {warranty.warrantyPeriodUnit}
                     </p>
                 </div>
-
-                {/* Rule Type */}
-
                 <div className="rounded-xl bg-muted/40 p-3">
                     <p className="text-xs uppercase tracking-wide text-muted-foreground">
                         Rule Type
@@ -888,8 +870,6 @@ function WarrantyView({
                             warranty.ruleType}
                     </p>
                 </div>
-
-                {/* Copy Limit */}
 
                 {warranty.warrantyCopyLimit != null && (
                     <div className="rounded-xl bg-muted/40 p-3">
@@ -906,8 +886,6 @@ function WarrantyView({
                     </div>
                 )}
 
-                {/* Hour Limit */}
-
                 {warranty.warrantyHourLimit != null && (
                     <div className="rounded-xl bg-muted/40 p-3">
                         <p className="text-xs uppercase tracking-wide text-muted-foreground">
@@ -922,8 +900,6 @@ function WarrantyView({
                         </p>
                     </div>
                 )}
-
-                {/* Registered */}
 
                 <div className="rounded-xl bg-muted/40 p-3">
                     <p className="text-xs uppercase tracking-wide text-muted-foreground">

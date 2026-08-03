@@ -156,7 +156,7 @@ export function AddModelDialog({
                 Add Model
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md bg-background/1 backdrop-blur-3xl">
                 <DialogHeader>
                     <DialogTitle>Add Model</DialogTitle>
                     <DialogDescription>
