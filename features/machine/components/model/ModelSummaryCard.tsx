@@ -41,7 +41,6 @@ export function ModelSummaryCard({
         <Card className="border-border/70 bg-card/80 shadow-sm backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
             <CardHeader>
                 <div className="flex items-start justify-between gap-4">
-                    {/* Model Information */}
                     <div className="min-w-0">
                         <div className="flex items-center gap-2">
                             <Badge
@@ -71,8 +70,6 @@ export function ModelSummaryCard({
                             {machine.machineCode}
                         </CardDescription>
                     </div>
-
-                    {/* Model Attributes */}
                     <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
                         {model.colorType && (
                             <Badge variant="secondary">
@@ -90,14 +87,12 @@ export function ModelSummaryCard({
             </CardHeader>
 
             <CardContent className="space-y-4">
-                {/* Description */}
                 {model.description && (
                     <p className="line-clamp-2 text-sm text-muted-foreground">
                         {model.description}
                     </p>
                 )}
 
-                {/* Warranty Summary + Actions */}
                 <div className="flex flex-col gap-3 rounded-xl bg-muted/40 p-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <p className="text-xs uppercase tracking-wide text-muted-foreground">
@@ -118,7 +113,6 @@ export function ModelSummaryCard({
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
-                        {/* Add Warranty */}
                         {onAddWarranty && (
                             <Button
                                 type="button"
@@ -133,7 +127,6 @@ export function ModelSummaryCard({
                             </Button>
                         )}
 
-                        {/* View Details */}
                         {onViewDetails && (
                             <Button
                                 type="button"

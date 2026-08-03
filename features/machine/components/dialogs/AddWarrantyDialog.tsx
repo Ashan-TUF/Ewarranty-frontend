@@ -229,7 +229,7 @@ export function AddWarrantyDialog({
                 open={open}
                 onOpenChange={handleDialogOpenChange}
             >
-                <DialogContent className="sm:max-w-lg">
+                <DialogContent className="sm:max-w-lg bg-background/1 backdrop-blur-3xl">
                     <DialogHeader>
                         <DialogTitle>
                             Add Warranty

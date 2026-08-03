@@ -188,10 +188,10 @@ export function AddMachineDialog() {
                 className="
                     overflow-hidden
                     border-border/60
-                    bg-background/95
+                    bg-background/1
                     p-0
                     shadow-2xl
-                    backdrop-blur-xl
+                    backdrop-blur-3xl
                     sm:max-w-2xl
                 "
             >
