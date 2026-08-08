@@ -122,10 +122,874 @@
     @apply border-border outline-ring/50;
   }
 
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--muted-foreground) 35%, transparent)
+      transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background-color: color-mix(
+      in oklch,
+      var(--muted-foreground) 35%,
+      transparent
+    );
+    background-clip: padding-box;
+    transition: background-color 220ms ease-out;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(
+      in oklch,
+      var(--muted-foreground) 55%,
+      transparent
+    );
+  }
+
+  *::-webkit-scrollbar-thumb:active {
+    background-color: color-mix(
+      in oklch,
+      var(--muted-foreground) 70%,
+      transparent
+    );
+  }
+
+  html,
+  body {
+    scroll-behavior: smooth;
+    overscroll-behavior-y: none;
+  }
+
+  .app-scroll-area {
+    scroll-behavior: smooth;
+    scroll-padding-block: 0.75rem;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y pinch-zoom;
+    scrollbar-gutter: stable both-edges;
+  }
+
+  .app-scroll-area :where(h1, h2, h3, [id]) {
+    scroll-margin-top: 1rem;
+  }
+
   body {
     @apply bg-background text-foreground transition-colors duration-300 ease-out;
   }
+
   html {
-    @apply font-sans;
+    @apply scroll-smooth font-sans;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html,
+    body {
+      scroll-behavior: auto;
+    }
   }
 }
+
+@keyframes sea-wave-drift {
+  0% {
+    transform: translateX(-55%) translateY(1px);
+  }
+
+  25% {
+    transform: translateX(-42%) translateY(-5px);
+  }
+
+  50% {
+    transform: translateX(-28%) translateY(3px);
+  }
+
+  75% {
+    transform: translateX(-15%) translateY(-4px);
+  }
+
+  100% {
+    transform: translateX(-6%) translateY(1px);
+  }
+}
+
+@keyframes sea-foam-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes liquid-fill-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  25% {
+    transform: translateY(-2px);
+  }
+
+  50% {
+    transform: translateY(2px);
+  }
+
+  75% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes bottle-drift {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(-0.6deg);
+  }
+}
+
+@keyframes caustic-drift {
+  0% {
+    transform: translateX(-30%) translateY(0);
+  }
+
+  50% {
+    transform: translateX(12%) translateY(-2px);
+  }
+
+  100% {
+    transform: translateX(45%) translateY(0);
+  }
+}
+
+@keyframes bubble-rise {
+  0% {
+    transform: translateY(10px) scale(0.88);
+    opacity: 0;
+  }
+
+  18% {
+    opacity: 0.45;
+  }
+
+  75% {
+    opacity: 0.38;
+  }
+
+  100% {
+    transform: translateY(-92px) scale(1.08);
+    opacity: 0;
+  }
+}
+
+.liquid-bottle {
+  animation: bottle-drift 4.8s ease-in-out infinite;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--card) 40%, transparent),
+    color-mix(in oklch, var(--muted) 80%, transparent)
+  );
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklch, white 22%, transparent),
+    inset 0 -8px 18px color-mix(in oklch, black 18%, transparent);
+}
+
+.liquid-fill {
+  animation: liquid-fill-bob 2.9s ease-in-out infinite;
+  transform-origin: center bottom;
+  box-shadow:
+    inset 0 8px 14px color-mix(in oklch, white 28%, transparent),
+    inset 0 -12px 18px color-mix(in oklch, black 20%, transparent);
+}
+
+.sea-depth {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 45%;
+  background: linear-gradient(
+    to top,
+    color-mix(in oklch, #083344 58%, transparent),
+    transparent
+  );
+  opacity: 0.42;
+}
+
+.sea-caustic {
+  position: absolute;
+  top: 22%;
+  left: -40%;
+  width: 70%;
+  height: 16px;
+  border-radius: 999px;
+  background: color-mix(in oklch, white 62%, transparent);
+  filter: blur(1px);
+  opacity: 0.2;
+  animation: caustic-drift 5.8s linear infinite;
+}
+
+.sea-caustic-b {
+  top: 54%;
+  width: 52%;
+  opacity: 0.14;
+  animation-duration: 7.2s;
+  animation-direction: reverse;
+}
+
+.sea-bubble {
+  position: absolute;
+  bottom: 8px;
+  border-radius: 999px;
+  background: color-mix(in oklch, white 85%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in oklch, white 52%, transparent);
+  animation: bubble-rise 4.2s ease-in infinite;
+}
+
+.sea-bubble-1 {
+  left: 18%;
+  width: 4px;
+  height: 4px;
+}
+
+.sea-bubble-2 {
+  left: 52%;
+  width: 5px;
+  height: 5px;
+  animation-duration: 5.1s;
+  animation-delay: 0.8s;
+}
+
+.sea-bubble-3 {
+  left: 72%;
+  width: 3px;
+  height: 3px;
+  animation-duration: 3.7s;
+  animation-delay: 0.35s;
+}
+
+.bottle-gloss {
+  position: absolute;
+  inset: 8% auto 8% 8%;
+  width: 16%;
+  border-radius: 999px;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklch, white 70%, transparent),
+    transparent
+  );
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.sea-wave {
+  position: absolute;
+  left: -50%;
+  top: -10px;
+  width: 200%;
+  height: 24px;
+  border-radius: 999px;
+  background: color-mix(in oklch, white 62%, transparent);
+  animation: sea-wave-drift 3.2s ease-in-out infinite;
+}
+
+.sea-wave-1 {
+  opacity: 0.45;
+}
+
+.sea-wave-2 {
+  top: -7px;
+  opacity: 0.28;
+  animation-duration: 4.4s;
+  animation-direction: reverse;
+  animation-timing-function: ease-in-out;
+}
+
+.sea-wave-3 {
+  top: -12px;
+  opacity: 0.2;
+  animation-duration: 5.6s;
+  animation-timing-function: ease-in-out;
+}
+
+.sea-foam {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 2px;
+  background: color-mix(in oklch, white 88%, transparent);
+  opacity: 0.55;
+  filter: blur(0.2px);
+  animation: sea-foam-bob 2.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sea-wave,
+  .sea-wave-1,
+  .sea-wave-2,
+  .sea-wave-3,
+  .sea-foam,
+  .liquid-bottle,
+  .liquid-fill,
+  .sea-caustic,
+  .sea-caustic-b,
+  .sea-bubble,
+  .sea-bubble-1,
+  .sea-bubble-2,
+  .sea-bubble-3 {
+    animation: none;
+  }
+
+  .sea-foam {
+    opacity: 0.45;
+  }
+}
+
+@media (max-width: 640px) {
+  .sea-wave {
+    height: 18px;
+  }
+
+  .sea-wave-2 {
+    top: -5px;
+  }
+
+  .sea-wave-3 {
+    top: -9px;
+  }
+}
+
+@keyframes machine-heart-scan {
+  0% {
+    transform: translateX(-115%);
+    opacity: 0;
+  }
+
+  18% {
+    opacity: 0.65;
+  }
+
+  80% {
+    opacity: 0.45;
+  }
+
+  100% {
+    transform: translateX(115%);
+    opacity: 0;
+  }
+}
+
+@keyframes machine-heart-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+
+  50% {
+    transform: scale(1.28);
+    opacity: 1;
+  }
+}
+
+@keyframes machine-heart-wave-run {
+  0% {
+    stroke-dashoffset: 0;
+  }
+
+  100% {
+    stroke-dashoffset: -360;
+  }
+}
+
+@keyframes machine-mix-fill-pulse {
+  0%,
+  100% {
+    transform: translateX(-2px) scaleY(0.94);
+    filter: brightness(0.96);
+  }
+
+  40% {
+    transform: translateX(0) scaleY(1);
+    filter: brightness(1.08);
+  }
+
+  100% {
+    transform: translateX(0) scaleY(1);
+  }
+}
+
+@keyframes machine-mix-shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  100% {
+    transform: translateX(160%);
+  }
+}
+
+@keyframes machine-mix-eq-rise {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+    opacity: 0.4;
+  }
+
+  40% {
+    transform: scaleY(0.95);
+    opacity: 0.9;
+  }
+
+  70% {
+    transform: scaleY(0.55);
+    opacity: 0.6;
+  }
+}
+
+@keyframes machine-mix-ribbon-drift {
+  0% {
+    transform: translateX(-58%) translateY(0);
+  }
+
+  50% {
+    transform: translateX(-24%) translateY(-2px);
+  }
+
+  100% {
+    transform: translateX(8%) translateY(0);
+  }
+}
+
+@keyframes machine-mix-orb-run {
+  0% {
+    transform: translateX(-18%) scale(0.9);
+    opacity: 0.35;
+  }
+
+  45% {
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: translateX(112%) scale(1.02);
+    opacity: 0.15;
+  }
+}
+
+@keyframes machine-warranty-fill-in {
+  0% {
+    transform: scaleX(0.18);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes machine-warranty-fill-breathe {
+  0%,
+  100% {
+    filter: brightness(0.96);
+  }
+
+  50% {
+    filter: brightness(1.12);
+  }
+}
+
+@keyframes machine-warranty-shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  100% {
+    transform: translateX(190%);
+  }
+}
+
+@keyframes machine-warranty-dot-pop {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.86;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+@keyframes machine-warranty-cute-wave {
+  0% {
+    transform: translateX(-58%) translateY(0);
+  }
+
+  50% {
+    transform: translateX(-26%) translateY(-2px);
+  }
+
+  100% {
+    transform: translateX(6%) translateY(0);
+  }
+}
+
+@keyframes machine-warranty-sparkle {
+  0%,
+  100% {
+    transform: translateY(0) scale(0.9);
+    opacity: 0.12;
+  }
+
+  50% {
+    transform: translateY(-2px) scale(1.05);
+    opacity: 0.35;
+  }
+}
+
+.machine-heart-wave {
+  fill: none;
+  stroke: color-mix(in oklch, #10b981 75%, #22d3ee);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 180 180;
+  animation: machine-heart-wave-run 2.2s linear infinite;
+  filter: drop-shadow(0 0 3px color-mix(in oklch, #10b981 55%, transparent));
+}
+
+.machine-heart-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #22c55e;
+  animation: machine-heart-pulse 1.1s ease-in-out infinite;
+  box-shadow: 0 0 0 3px color-mix(in oklch, #22c55e 25%, transparent);
+}
+
+.machine-heart-dot-danger {
+  background: #f43f5e;
+  box-shadow: 0 0 0 3px color-mix(in oklch, #f43f5e 26%, transparent);
+}
+
+.machine-heart-glow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 22%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in oklch, #22d3ee 28%, transparent),
+    transparent
+  );
+  animation: machine-heart-scan 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.machine-heart-wave-danger {
+  stroke: color-mix(in oklch, #f43f5e 78%, #fb7185);
+  filter: drop-shadow(0 0 3px color-mix(in oklch, #f43f5e 55%, transparent));
+}
+
+.machine-heart-glow-danger {
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in oklch, #f43f5e 30%, transparent),
+    transparent
+  );
+}
+
+.machine-warranty-fill {
+  transform-origin: left center;
+  animation:
+    machine-warranty-fill-in 0.8s ease-out,
+    machine-warranty-fill-breathe 2.3s ease-in-out infinite;
+  box-shadow: 0 0 10px color-mix(in oklch, #22c55e 40%, transparent);
+  overflow: hidden;
+}
+
+.machine-warranty-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 38%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in oklch, white 55%, transparent),
+    transparent
+  );
+  animation: machine-warranty-shimmer 2.8s ease-in-out infinite;
+}
+
+.machine-warranty-fill-danger {
+  box-shadow: 0 0 10px color-mix(in oklch, #f43f5e 40%, transparent);
+}
+
+.machine-warranty-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #14b8a6;
+  animation: machine-warranty-dot-pop 1.2s ease-in-out infinite;
+  box-shadow: 0 0 0 3px color-mix(in oklch, #14b8a6 24%, transparent);
+}
+
+.machine-warranty-status-dot-danger {
+  background: #f43f5e;
+  box-shadow: 0 0 0 3px color-mix(in oklch, #f43f5e 26%, transparent);
+}
+
+.machine-warranty-cute-track {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklch, white 12%, transparent),
+    transparent
+  );
+}
+
+.machine-warranty-cute-fill {
+  box-shadow:
+    inset 0 5px 9px color-mix(in oklch, white 20%, transparent),
+    inset 0 -8px 10px color-mix(in oklch, black 16%, transparent);
+}
+
+.machine-warranty-cute-fill-safe {
+  background: linear-gradient(
+    to top,
+    color-mix(in oklch, #0f766e 70%, transparent),
+    color-mix(in oklch, #34d399 62%, transparent)
+  );
+}
+
+.machine-warranty-cute-fill-danger {
+  background: linear-gradient(
+    to top,
+    color-mix(in oklch, #be123c 70%, transparent),
+    color-mix(in oklch, #fb7185 62%, transparent)
+  );
+}
+
+.machine-warranty-cute-wave {
+  position: absolute;
+  left: -60%;
+  top: -8px;
+  width: 220%;
+  height: 17px;
+  border-radius: 999px;
+  background: color-mix(in oklch, white 62%, transparent);
+  animation: machine-warranty-cute-wave 3.2s ease-in-out infinite;
+}
+
+.machine-warranty-cute-wave-b {
+  top: -5px;
+  opacity: 0.24;
+  animation-duration: 4.3s;
+  animation-direction: reverse;
+}
+
+.machine-warranty-cute-wave-c {
+  top: -10px;
+  opacity: 0.16;
+  animation-duration: 5.1s;
+}
+
+.machine-warranty-cute-spark {
+  position: absolute;
+  bottom: 6px;
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: color-mix(in oklch, white 80%, transparent);
+  animation: machine-warranty-sparkle 2.1s ease-in-out infinite;
+}
+
+.machine-warranty-cute-spark-1 {
+  left: 18%;
+}
+
+.machine-warranty-cute-spark-2 {
+  left: 41%;
+  animation-delay: 0.32s;
+}
+
+.machine-warranty-cute-spark-3 {
+  left: 63%;
+  animation-delay: 0.58s;
+}
+
+.machine-warranty-cute-spark-4 {
+  left: 79%;
+  animation-delay: 0.82s;
+}
+
+.machine-warranty-bar-glow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 30%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in oklch, #34d399 35%, transparent),
+    transparent
+  );
+  animation: machine-warranty-shimmer 2.8s ease-in-out infinite;
+}
+
+.machine-warranty-bar-glow-danger {
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in oklch, #f43f5e 34%, transparent),
+    transparent
+  );
+}
+
+.machine-mix-spectrum {
+  position: relative;
+  overflow: hidden;
+}
+
+.machine-mix-spectrum::after {
+  content: "";
+  position: absolute;
+  inset: -30% auto auto -15%;
+  width: 55%;
+  height: 150%;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklch, #22d3ee 35%, transparent) 0%,
+    transparent 72%
+  );
+  pointer-events: none;
+}
+
+.machine-mix-eq {
+  display: none;
+}
+
+.machine-mix-flow {
+  position: relative;
+  height: 22px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in oklch, #0ea5e9 16%, transparent);
+}
+
+.machine-mix-flow-ribbon {
+  position: absolute;
+  left: -55%;
+  width: 210%;
+  height: 16px;
+  border-radius: 999px;
+  background: color-mix(in oklch, white 68%, transparent);
+  animation: machine-mix-ribbon-drift 3.2s ease-in-out infinite;
+}
+
+.machine-mix-flow-ribbon-a {
+  top: 3px;
+  opacity: 0.38;
+}
+
+.machine-mix-flow-ribbon-b {
+  top: 7px;
+  opacity: 0.22;
+  animation-duration: 4.1s;
+  animation-direction: reverse;
+}
+
+.machine-mix-flow-ribbon-c {
+  top: 1px;
+  opacity: 0.14;
+  animation-duration: 5.1s;
+}
+
+.machine-mix-track {
+  position: relative;
+  overflow: hidden;
+}
+
+.machine-mix-fill {
+  position: relative;
+  overflow: hidden;
+  transform-origin: left center;
+  animation: machine-mix-fill-pulse 0.75s ease-out both;
+}
+
+.machine-mix-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 32%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in oklch, white 45%, transparent),
+    transparent
+  );
+  animation: machine-mix-shimmer 2.6s linear infinite;
+}
+
+.machine-mix-fill-spark {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 30%;
+  background: linear-gradient(
+    to right,
+    color-mix(in oklch, white 28%, transparent),
+    transparent
+  );
+}
+
+.machine-mix-fill-orb {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  transform: translateY(-50%);
+  background: color-mix(in oklch, white 88%, #22d3ee 12%);
+  box-shadow: 0 0 0 3px color-mix(in oklch, #22d3ee 24%, transparent);
+  animation: machine-mix-orb-run 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .machine-heart-wave,
+  .machine-heart-dot,
+  .machine-heart-glow,
+  .machine-warranty-status-dot,
+  .machine-warranty-cute-wave,
+  .machine-warranty-cute-wave-b,
+  .machine-warranty-cute-wave-c,
+  .machine-warranty-cute-spark,
+  .machine-warranty-bar-glow,
+  .machine-warranty-fill,
+  .machine-warranty-fill::after,
+  .machine-mix-flow-ribbon,
+  .machine-mix-fill,
+  .machine-mix-fill::after,
+  .machine-mix-fill-orb {
+    animation: none;
+  }
+}
+

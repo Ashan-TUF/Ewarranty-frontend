@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Boxes, CalendarDays, Factory, ShieldCheck, Sparkles, Tag } from "lucide-react";
+import { Activity, ArrowRight, Boxes, CalendarDays, Factory, ShieldCheck, Sparkles, Tag } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -49,16 +49,17 @@ export function MachineCard({ machine }: MachineCardProps) {
     const warrantyHealth = modelsCount > 0
         ? Math.round((modelsWithActiveWarrantyCount / modelsCount) * 100)
         : 0;
+    const isZeroWarrantyHealth = warrantyHealth === 0;
     const visibleModels = machine.models.slice(0, 4);
     const hiddenModelsCount = Math.max(machine.models.length - visibleModels.length, 0);
 
     return (
-        <Card className="border-border/70 bg-card/80 shadow-sm backdrop-blur">
-            <CardHeader>
-                <div className="flex items-start justify-between gap-3">
+        <Card className="rounded-2xl border-border/70 bg-card/80 shadow-sm backdrop-blur">
+            <CardHeader className="space-y-3 px-4 pb-3 pt-4">
+                <div className="flex items-start justify-between gap-2.5">
                     <div>
                         <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="font-mono text-[11px]">
+                            <Badge variant="outline" className="px-1.5 py-0.5 font-mono text-[10px]">
                                 {machine.machineCode}
                             </Badge>
                             {machine.isActive && (
@@ -71,79 +72,86 @@ export function MachineCard({ machine }: MachineCardProps) {
                                 <Badge variant="destructive">Inactive</Badge>
                             )}
                         </div>
-                        <CardTitle className="mt-1.5 text-lg">
+                        <CardTitle className="mt-1 text-base">
                             {machine.machineName}
                         </CardTitle>
-                        <CardDescription className="mt-1 flex items-center gap-2">
+                        <CardDescription className="mt-1 flex items-center gap-1.5 text-xs">
                             <Factory className="size-4" />
                             {machine.manufacturer}
                         </CardDescription>
                     </div>
 
-                    <Badge variant="secondary" className="inline-flex items-center gap-1.5">
-                        <Tag className="size-3.5" />
+                    <Badge variant="secondary" className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[11px]">
+                        <Tag className="size-3" />
                         Type: {machine.category}
                     </Badge>
                 </div>
             </CardHeader>
 
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 px-4 pb-4 pt-0">
                 {machine.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-2">
+                    <p className="line-clamp-2 text-xs text-muted-foreground">
                         {machine.description}
                     </p>
                 )}
 
-                <div className="grid gap-3 sm:grid-cols-4">
-                    <div className="rounded-xl bg-muted/40 p-3">
-                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                <div className="grid gap-2 sm:grid-cols-4">
+                    <div className="rounded-lg bg-muted/40 p-2.5">
+                        <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
                             Models
                         </p>
-                        <p className="mt-1 flex items-center gap-2 font-medium">
-                            <Boxes className="size-4 text-primary" />
+                        <p className="mt-1 flex items-center gap-1.5 text-sm font-medium">
+                            <Boxes className="size-3.5 text-primary" />
                             {modelsCount}
                         </p>
                     </div>
 
-                    <div className="rounded-xl bg-muted/40 p-3">
-                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                    <div className="rounded-lg bg-muted/40 p-2.5">
+                        <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
                             Active Models
                         </p>
-                        <p className="mt-1 flex items-center gap-2 font-medium">
-                            <Sparkles className="size-4 text-primary" />
+                        <p className="mt-1 flex items-center gap-1.5 text-sm font-medium">
+                            <Sparkles className="size-3.5 text-primary" />
                             {activeModelsCount}
                         </p>
                     </div>
 
-                    <div className="rounded-xl bg-muted/40 p-3">
-                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                    <div className="rounded-lg bg-muted/40 p-2.5">
+                        <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
                             Warranties
                         </p>
-                        <p className="mt-1 flex items-center gap-2 font-medium">
-                            <ShieldCheck className="size-4 text-primary" />
+                        <p className="mt-1 flex items-center gap-1.5 text-sm font-medium">
+                            <ShieldCheck className="size-3.5 text-primary" />
                             {activeWarrantiesCount}/{warrantiesCount} active
                         </p>
                     </div>
 
-                    <div className="rounded-xl bg-muted/40 p-3">
-                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                    <div className="rounded-lg bg-muted/40 p-2.5">
+                        <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
                             Registered
                         </p>
-                        <p className="mt-1 flex items-center gap-2 font-medium">
-                            <CalendarDays className="size-4 text-primary" />
+                        <p className="mt-1 flex items-center gap-1.5 text-sm font-medium">
+                            <CalendarDays className="size-3.5 text-primary" />
                             {formatDate(machine.createdAt)}
                         </p>
                     </div>
                 </div>
 
-                <div className="rounded-xl border border-border/60 bg-muted/30 p-3">
+                <div className="machine-heart-panel rounded-lg border border-border/60 bg-muted/30 p-2.5">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                         <p className="text-xs uppercase tracking-wide text-muted-foreground">
                             Warranty Health
                         </p>
 
                         <div className="flex items-center gap-2 text-xs">
-                            <span className="rounded-md bg-emerald-500/10 px-2 py-0.5 font-medium text-emerald-700 dark:text-emerald-300">
+                            <span
+                                className={cn(
+                                    "rounded-md px-1.5 py-0.5 text-[11px] font-medium",
+                                    isZeroWarrantyHealth
+                                        ? "bg-rose-500/10 text-rose-700 dark:text-rose-300"
+                                        : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                                )}
+                            >
                                 {modelsWithActiveWarrantyCount}/{modelsCount} models covered
                             </span>
                             {inactiveModelsCount > 0 && (
@@ -154,23 +162,93 @@ export function MachineCard({ machine }: MachineCardProps) {
                         </div>
                     </div>
 
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
+                    <div
+                        className={cn(
+                            "mt-2.5 rounded-lg px-2 py-1.5",
+                            isZeroWarrantyHealth
+                                ? "border border-rose-500/25 bg-rose-500/5"
+                                : "border border-emerald-500/20 bg-emerald-500/5"
+                        )}
+                    >
+                        <div className="mb-2 flex items-center justify-between text-[11px] text-muted-foreground">
+                            <span className="inline-flex items-center gap-1.5">
+                                <Activity
+                                    className={cn(
+                                        "size-3.5",
+                                        isZeroWarrantyHealth ? "text-rose-500" : "text-emerald-500"
+                                    )}
+                                />
+                                Coverage Bloom
+                            </span>
+                            <span className="inline-flex items-center gap-1.5">
+                                <span
+                                    className={cn(
+                                        "machine-warranty-status-dot",
+                                        isZeroWarrantyHealth && "machine-warranty-status-dot-danger"
+                                    )}
+                                />
+                                {warrantyHealth}%
+                            </span>
+                        </div>
+
                         <div
-                            className="h-full rounded-full bg-emerald-500 transition-all duration-300"
-                            style={{ width: `${warrantyHealth}%` }}
-                            aria-hidden="true"
-                        />
+                            className={cn(
+                                "machine-warranty-cute-track relative h-9 overflow-hidden rounded-md",
+                                isZeroWarrantyHealth
+                                    ? "border border-rose-500/25 bg-rose-500/5"
+                                    : "border border-emerald-500/20 bg-emerald-500/5"
+                            )}
+                        >
+                            <div
+                                className={cn(
+                                    "machine-warranty-cute-fill absolute inset-y-0 left-0 overflow-hidden",
+                                    isZeroWarrantyHealth
+                                        ? "machine-warranty-cute-fill-danger"
+                                        : "machine-warranty-cute-fill-safe"
+                                )}
+                                style={{ width: `${Math.max(10, warrantyHealth)}%` }}
+                                aria-hidden="true"
+                            >
+                                <span className="machine-warranty-cute-wave machine-warranty-cute-wave-a" />
+                                <span className="machine-warranty-cute-wave machine-warranty-cute-wave-b" />
+                                <span className="machine-warranty-cute-wave machine-warranty-cute-wave-c" />
+                            </div>
+                            <span className="machine-warranty-cute-spark machine-warranty-cute-spark-1" aria-hidden="true" />
+                            <span className="machine-warranty-cute-spark machine-warranty-cute-spark-2" aria-hidden="true" />
+                            <span className="machine-warranty-cute-spark machine-warranty-cute-spark-3" aria-hidden="true" />
+                            <span className="machine-warranty-cute-spark machine-warranty-cute-spark-4" aria-hidden="true" />
+                        </div>
                     </div>
 
-                    <p className="mt-2 text-xs text-muted-foreground">
+                    <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-muted">
+                        <div
+                            className={cn(
+                                "machine-warranty-fill relative h-full rounded-full",
+                                isZeroWarrantyHealth
+                                    ? "machine-warranty-fill-danger bg-rose-500/85"
+                                    : "bg-emerald-500/85"
+                            )}
+                            style={{ width: `${warrantyHealth}%` }}
+                            aria-hidden="true"
+                        >
+                            <span
+                                className={cn(
+                                    "machine-warranty-bar-glow",
+                                    isZeroWarrantyHealth && "machine-warranty-bar-glow-danger"
+                                )}
+                            />
+                        </div>
+                    </div>
+
+                    <p className="mt-1.5 text-[11px] text-muted-foreground">
                         {warrantyHealth}% model coverage by active warranties
                     </p>
                 </div>
 
                 {modelsCount > 0 && (
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5">
                         {visibleModels.map((model) => (
-                            <Badge key={model.modelCode} variant="outline">
+                            <Badge key={model.modelCode} variant="outline" className="text-[11px]">
                                 <span className="inline-flex items-center gap-1.5">
                                     {model.isActive && (
                                         <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
@@ -185,7 +263,7 @@ export function MachineCard({ machine }: MachineCardProps) {
                     </div>
                 )}
 
-                <div className="flex justify-end pt-1">
+                <div className="flex justify-end pt-0.5">
                     <Link
                         href={ROUTES.MACHINE_DETAILS(machine.machineCode)}
                         className={cn(buttonVariants({ variant: "outline", size: "sm" }))}

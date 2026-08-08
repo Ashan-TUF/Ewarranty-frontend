@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { SearchX } from "lucide-react";
+import { Boxes, Layers3, SearchX, Sparkles } from "lucide-react";
 
 import AppHeader from "@/components/layout/AppHeader";
 import {
@@ -237,13 +237,19 @@ export default function MachineListPage() {
 
                 <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
 
-                    <Card>
-                        <CardHeader>
-                            <CardDescription>
-                                Total Machines
-                            </CardDescription>
+                    <Card className="overflow-hidden border-border/70 bg-gradient-to-br from-card via-card to-sky-500/10 shadow-sm">
+                        <CardHeader className="relative pb-2">
+                            <span className="pointer-events-none absolute -right-7 -top-7 size-16 rounded-full bg-sky-400/15 blur-xl" />
+                            <div className="flex items-center justify-between gap-3">
+                                <CardDescription className="text-xs font-medium uppercase tracking-wide">
+                                    Total Machines
+                                </CardDescription>
+                                <span className="inline-flex size-8 items-center justify-center rounded-full bg-sky-500/15 text-sky-600 dark:text-sky-300">
+                                    <Boxes className="size-4" />
+                                </span>
+                            </div>
 
-                            <CardTitle className="text-3xl">
+                            <CardTitle className="mt-2 text-3xl">
                                 {totalCount}
                             </CardTitle>
                         </CardHeader>
@@ -253,13 +259,19 @@ export default function MachineListPage() {
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardDescription>
-                                Active Machines
-                            </CardDescription>
+                    <Card className="overflow-hidden border-border/70 bg-gradient-to-br from-card via-card to-emerald-500/10 shadow-sm">
+                        <CardHeader className="relative pb-2">
+                            <span className="pointer-events-none absolute -right-7 -top-7 size-16 rounded-full bg-emerald-400/15 blur-xl" />
+                            <div className="flex items-center justify-between gap-3">
+                                <CardDescription className="text-xs font-medium uppercase tracking-wide">
+                                    Active Machines
+                                </CardDescription>
+                                <span className="inline-flex size-8 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-300">
+                                    <Sparkles className="size-4" />
+                                </span>
+                            </div>
 
-                            <CardTitle className="text-3xl">
+                            <CardTitle className="mt-2 text-3xl">
                                 {activeCount}
                             </CardTitle>
                         </CardHeader>
@@ -269,13 +281,19 @@ export default function MachineListPage() {
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardDescription>
-                                Categories
-                            </CardDescription>
+                    <Card className="overflow-hidden border-border/70 bg-gradient-to-br from-card via-card to-violet-500/10 shadow-sm">
+                        <CardHeader className="relative pb-2">
+                            <span className="pointer-events-none absolute -right-7 -top-7 size-16 rounded-full bg-violet-400/15 blur-xl" />
+                            <div className="flex items-center justify-between gap-3">
+                                <CardDescription className="text-xs font-medium uppercase tracking-wide">
+                                    Categories
+                                </CardDescription>
+                                <span className="inline-flex size-8 items-center justify-center rounded-full bg-violet-500/15 text-violet-600 dark:text-violet-300">
+                                    <Layers3 className="size-4" />
+                                </span>
+                            </div>
 
-                            <CardTitle className="text-3xl">
+                            <CardTitle className="mt-2 text-3xl">
                                 {categoryCount}
                             </CardTitle>
                         </CardHeader>

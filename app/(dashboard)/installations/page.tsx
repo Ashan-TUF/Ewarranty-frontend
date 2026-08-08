@@ -1,7 +1,5 @@
-export default function InstallationsPage() {
-	return (
-		<div className="p-6">
-			<h1 className="text-2xl font-bold">Installations</h1>
-		</div>
-	);
+import { redirect } from "next/navigation";
+
+export default function Page() {
+    redirect("/installations/summary");
 }

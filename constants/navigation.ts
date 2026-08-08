@@ -1,9 +1,6 @@
 import {
     Cpu,
     LayoutDashboard,
-    Package,
-    ShieldCheck,
-    Users,
     Wrench,
 } from "lucide-react";
 
@@ -22,23 +19,8 @@ export const navigation: NavigationItem[] = [
         icon: Cpu,
     },
     {
-        title: "Machine Models",
-        href: ROUTES.MACHINE_MODELS,
-        icon: Package,
-    },
-    {
-        title: "Warranties",
-        href: ROUTES.WARRANTIES,
-        icon: ShieldCheck,
-    },
-    {
         title: "Installations",
         href: ROUTES.INSTALLATIONS,
         icon: Wrench,
-    },
-    {
-        title: "Customers",
-        href: ROUTES.CUSTOMERS,
-        icon: Users,
-    },
+    }
 ];
