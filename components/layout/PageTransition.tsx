@@ -20,6 +20,9 @@ export default function PageTransition({
             "/machine-models": "Machine Models",
             "/warranties": "Warranties",
             "/installations": "Installations",
+            "/installations/summary": "Installation Summary",
+            "/installations/confirm-installations": "Confirm Installations",
+            "/installations/submit-installations": "Submit Installations",
             "/customers": "Customers",
             "/login": "Login",
         };
@@ -30,6 +33,10 @@ export default function PageTransition({
 
         if (routeTitleMap[pathname]) {
             return routeTitleMap[pathname];
+        }
+
+        if (pathname.startsWith("/installations/confirm-installations/")) {
+            return "Installation Report Details";
         }
 
         if (
@@ -87,7 +94,7 @@ export default function PageTransition({
                     duration: 0.55,
                     ease: [0.22, 1, 0.36, 1],
                 }}
-                className="flex-1 overflow-y-auto"
+                className="flex-1 overflow-y-auto scroll-smooth"
             >
                 {children}
             </motion.main>
@@ -107,13 +114,18 @@ function RouteTitleOverlay({
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
-        setVisible(true);
+        const showTimer = setTimeout(() => {
+            setVisible(true);
+        }, 0);
 
-        const timer = setTimeout(() => {
+        const hideTimer = setTimeout(() => {
             setVisible(false);
         }, 650);
 
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(showTimer);
+            clearTimeout(hideTimer);
+        };
     }, [trigger]);
 
     return (

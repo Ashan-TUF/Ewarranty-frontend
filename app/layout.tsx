@@ -6,6 +6,7 @@ import { IBM_Plex_Mono, Manrope, Plus_Jakarta_Sans } from "next/font/google";
 import QueryProvider from "@/providers/QueryProvider";
 import ThemeProvider from "@/providers/ThemeProvider";
 
+import SmoothScroll from "@/components/layout/SmoothScroll";
 import WelcomeScreen from "@/components/layout/WelcomeScreen";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -47,6 +48,7 @@ export default function RootLayout({
       <body className="antialiased transition-colors duration-300 ease-out">
         <ThemeProvider>
           <QueryProvider>
+            <SmoothScroll />
             <WelcomeScreen />
             {children}
             <Toaster richColors position="top-right" />

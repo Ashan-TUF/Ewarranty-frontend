@@ -16,8 +16,7 @@ export default function DashboardLayout({
             <AppSidebar />
 
             <SidebarInset className="flex h-svh flex-col overflow-hidden bg-background text-foreground transition-colors duration-300 ease-out">
-                {/* Scrollable Area */}
-                <div className="flex-1 overflow-y-auto">
+                <div className="app-scroll-area flex-1 overflow-y-auto">
                     <PageTransition>
                         <div className="pb-20">
                             {children}

@@ -15,12 +15,10 @@ export const ROUTES = {
     modelCode: string,
     warrantyTypeCode: string
   ) => `/machines/${machineCode}/models/${modelCode}/warranties/${warrantyTypeCode}`,
-
-  MACHINE_MODELS: "/machine-models",
-
-  WARRANTIES: "/warranties",
-
   INSTALLATIONS: "/installations",
-
-  CUSTOMERS: "/customers",
+  INSTALLATION_SUMMARY: "/installations/summary",
+  CONFIRM_INSTALLATIONS: "/installations/confirm-installations",
+  CONFIRM_INSTALLATION_DETAILS: (id: number | string) =>
+    `/installations/confirm-installations/${id}`,
+  SUBMIT_INSTALLATIONS: "/installations/submit-installations",
 } as const;

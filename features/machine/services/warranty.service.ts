@@ -1,3 +1,5 @@
+import { apiUrl } from "@/lib/api-url";
+
 import type { CreateModelWarrantyForm } from "../schemas/model-warranty.schema";
 import type { CreateWarrantyTypeForm } from "../schemas/warranty-type.schema";
 import type {
@@ -11,11 +13,8 @@ interface ApiErrorResponse {
     errors?: Record<string, string[]>;
 }
 
-const API_URL =
-    process.env.NEXT_PUBLIC_EWARRANTY_URL ?? "http://localhost:5067";
-
 export async function getWarrantyTypes(): Promise<WarrantyTypeOption[]> {
-    const response = await fetch(`${API_URL}/api/warranty-types`);
+    const response = await fetch(apiUrl("/warranty-types"));
 
     if (!response.ok) {
         throw new Error("Failed to load warranty types.");
@@ -30,7 +29,7 @@ export async function getWarrantyTypes(): Promise<WarrantyTypeOption[]> {
 export async function createWarrantyType(
     payload: CreateWarrantyTypeForm
 ): Promise<WarrantyTypeOption> {
-    const response = await fetch(`${API_URL}/api/warranty-types`, {
+    const response = await fetch(apiUrl("/warranty-types"), {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -55,7 +54,7 @@ export async function createModelWarranty(
     payload: CreateModelWarrantyForm
 ): Promise<ModelWarrantySummaryResponse> {
     const response = await fetch(
-        `${API_URL}/api/machines/${machineCode}/models/${modelCode}/warranties`,
+        apiUrl(`/machines/${machineCode}/models/${modelCode}/warranties`),
         {
             method: "POST",
             headers: {
