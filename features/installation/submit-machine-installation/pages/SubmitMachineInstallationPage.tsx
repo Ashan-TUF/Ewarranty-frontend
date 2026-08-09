@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
     ClipboardList,
     Loader2,
@@ -16,8 +16,16 @@ import AppHeader from "@/components/layout/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { PageState } from "@/features/machine/components";
+import { useMachines } from "@/features/machine/hooks/useMachine";
 
 import {
     useSubmitInstallationReport,
@@ -364,12 +372,22 @@ function Section({
 export default function SubmitMachineInstallationPage() {
     const [mode, setMode] = useState<FormMode>("create");
     const [form, setForm] = useState<InstallationFormState>(emptyForm);
+    const [selectedMachineCode, setSelectedMachineCode] = useState("");
     const [reportIdInput, setReportIdInput] = useState("");
     const [loadError, setLoadError] = useState<string | null>(null);
+    const [formAlertMessage, setFormAlertMessage] = useState<string | null>(null);
     const [isLoadingReport, setIsLoadingReport] = useState(false);
 
+    const machinesQuery = useMachines();
     const submitMutation = useSubmitInstallationReport();
     const updateMutation = useUpdateInstallationReport();
+
+    const machines = machinesQuery.data?.items ?? [];
+    const selectedMachine = useMemo(
+        () => machines.find((machine) => machine.machineCode === selectedMachineCode) ?? null,
+        [machines, selectedMachineCode]
+    );
+    const machineModels = selectedMachine?.models ?? [];
 
     const isSubmitting = submitMutation.isPending || updateMutation.isPending;
 
@@ -386,12 +404,63 @@ export default function SubmitMachineInstallationPage() {
             ...current,
             [key]: value,
         }));
+
+        if (formAlertMessage) {
+            setFormAlertMessage(null);
+        }
     }
 
     function resetForm() {
         setForm(emptyForm);
+        setSelectedMachineCode("");
         setReportIdInput("");
         setLoadError(null);
+        setFormAlertMessage(null);
+    }
+
+    function notifyValidation(message: string) {
+        setFormAlertMessage(message);
+        toast.error(message);
+    }
+
+    useEffect(() => {
+        if (!form.machineModel) {
+            return;
+        }
+
+        const matchedMachine = machines.find((machine) =>
+            machine.models.some((model) => model.modelCode === form.machineModel)
+        );
+
+        if (matchedMachine && matchedMachine.machineCode !== selectedMachineCode) {
+            setSelectedMachineCode(matchedMachine.machineCode);
+        }
+    }, [form.machineModel, machines, selectedMachineCode]);
+
+    function handleMachineChange(machineCode: string) {
+        setSelectedMachineCode(machineCode);
+
+        const machine = machines.find((item) => item.machineCode === machineCode);
+
+        setForm((current) => ({
+            ...current,
+            machineModel: "",
+            machineDescription: machine?.description ?? "",
+        }));
+    }
+
+    function handleMachineModelChange(modelCode: string) {
+        const selectedModel = machineModels.find((model) => model.modelCode === modelCode);
+
+        setForm((current) => ({
+            ...current,
+            machineModel: modelCode,
+            machineDescription:
+                selectedModel?.description?.trim() ||
+                selectedModel?.modelName ||
+                selectedMachine?.description ||
+                "",
+        }));
     }
 
     function validateCreate() {
@@ -401,15 +470,17 @@ export default function SubmitMachineInstallationPage() {
         });
 
         if (missingField) {
-            toast.error("Please fill all required fields.");
+            notifyValidation("Please fill all required fields before submitting.");
             return false;
         }
 
+        setFormAlertMessage(null);
         return true;
     }
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        setFormAlertMessage(null);
 
         try {
             if (mode === "create") {
@@ -419,13 +490,14 @@ export default function SubmitMachineInstallationPage() {
 
                 const result = await submitMutation.mutateAsync(buildCreatePayload(form));
                 toast.success(`Installation report submitted. ID ${result.id}.`);
+                setFormAlertMessage(null);
                 resetForm();
                 return;
             }
 
             const id = Number(reportIdInput);
             if (!Number.isFinite(id) || id <= 0) {
-                toast.error("Please enter a valid installation report ID.");
+                notifyValidation("Please enter a valid installation report ID.");
                 return;
             }
 
@@ -434,12 +506,15 @@ export default function SubmitMachineInstallationPage() {
                 payload: buildUpdatePayload(form),
             });
             toast.success(`Installation report ${result.id} updated.`);
+            setFormAlertMessage(null);
         } catch (submitError) {
-            toast.error(
+            const message =
                 submitError instanceof Error
                     ? submitError.message
-                    : "Failed to save installation report."
-            );
+                    : "Failed to save installation report.";
+
+            setFormAlertMessage(message);
+            toast.error(message);
         }
     }
 
@@ -447,22 +522,26 @@ export default function SubmitMachineInstallationPage() {
         const id = Number(reportIdInput);
 
         if (!Number.isFinite(id) || id <= 0) {
-            toast.error("Please enter a valid installation report ID.");
+            notifyValidation("Please enter a valid installation report ID.");
             return;
         }
 
         setIsLoadingReport(true);
         setLoadError(null);
+        setFormAlertMessage(null);
 
         try {
             const report = await getInstallationReportById(id);
 
             if (!report) {
-                setLoadError("No installation report was returned for this ID.");
+                const message = "No installation report was returned for this ID.";
+                setLoadError(message);
+                setFormAlertMessage(message);
                 return;
             }
 
             setForm(mapReportToForm(report));
+            setFormAlertMessage(null);
             toast.success(`Installation report ${report.id} loaded.`);
         } catch (loadReportError) {
             const message =
@@ -471,6 +550,7 @@ export default function SubmitMachineInstallationPage() {
                     : "Failed to load installation report.";
 
             setLoadError(message);
+            setFormAlertMessage(message);
             toast.error(message);
         } finally {
             setIsLoadingReport(false);
@@ -557,6 +637,15 @@ export default function SubmitMachineInstallationPage() {
                 </Card>
 
                 <form className="space-y-6" onSubmit={handleSubmit}>
+                    {formAlertMessage && (
+                        <div
+                            role="alert"
+                            className="rounded-lg border border-destructive/35 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+                        >
+                            {formAlertMessage}
+                        </div>
+                    )}
+
                     <Section title="Customer Details">
                         <Field
                             label="Customer Code"
@@ -624,13 +713,68 @@ export default function SubmitMachineInstallationPage() {
                     </Section>
 
                     <Section title="Machine Details">
-                        <Field
-                            label="Machine Model"
-                            value={form.machineModel}
-                            required={mode === "create"}
-                            disabled={mode === "update"}
-                            onChange={(value) => setField("machineModel", value)}
-                        />
+                        <label className="space-y-1.5">
+                            <span className="text-xs font-medium text-muted-foreground">
+                                Machine *
+                            </span>
+                            <Select
+                                value={selectedMachineCode}
+                                disabled={mode === "update" || machinesQuery.isLoading || machines.length === 0}
+                                onValueChange={handleMachineChange}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue
+                                        placeholder={
+                                            machinesQuery.isLoading
+                                                ? "Loading machines..."
+                                                : "Select machine"
+                                        }
+                                    />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {machines.map((machine) => (
+                                        <SelectItem key={machine.machineCode} value={machine.machineCode}>
+                                            {machine.machineCode} - {machine.machineName}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </label>
+
+                        <label className="space-y-1.5">
+                            <span className="text-xs font-medium text-muted-foreground">
+                                Machine Model *
+                            </span>
+                            <Select
+                                value={form.machineModel}
+                                disabled={
+                                    mode === "update" ||
+                                    !selectedMachineCode ||
+                                    machineModels.length === 0
+                                }
+                                onValueChange={handleMachineModelChange}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue
+                                        placeholder={
+                                            !selectedMachineCode
+                                                ? "Select machine first"
+                                                : machineModels.length === 0
+                                                    ? "No models available"
+                                                    : "Select machine model"
+                                        }
+                                    />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {machineModels.map((model) => (
+                                        <SelectItem key={model.modelCode} value={model.modelCode}>
+                                            {model.modelCode} - {model.modelName}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </label>
+
                         <Field
                             label="Machine Description"
                             value={form.machineDescription}
@@ -649,6 +793,12 @@ export default function SubmitMachineInstallationPage() {
                             value={form.referenceNo}
                             onChange={(value) => setField("referenceNo", value)}
                         />
+
+                        {machinesQuery.isError && (
+                            <p className="text-xs text-rose-600 sm:col-span-2 xl:col-span-3">
+                                Failed to load machine list. Please refresh and try again.
+                            </p>
+                        )}
                     </Section>
 
                     <Section title="Installation Details">
