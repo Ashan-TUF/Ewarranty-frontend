@@ -94,7 +94,7 @@ export default function PageTransition({
                     duration: 0.55,
                     ease: [0.22, 1, 0.36, 1],
                 }}
-                className="flex-1 overflow-y-auto scroll-smooth"
+                className="flex-1 scroll-smooth"
             >
                 {children}
             </motion.main>

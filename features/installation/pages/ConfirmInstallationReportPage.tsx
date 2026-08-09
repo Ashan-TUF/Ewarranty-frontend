@@ -181,7 +181,10 @@ export default function ConfirmInstallationReportPage() {
     const summary = {
         totalCount: displayTotalCount,
         pendingCount: displayReports.filter((report) => report.installationStatus === "Pending").length,
-        confirmedCount: displayReports.filter((report) => report.installationStatus === "Confirmed").length,
+        confirmedCount: reports.filter((report) => {
+            const status = (report.installationStatus ?? "").trim().toLowerCase();
+            return status === "completed" || status === "confirmed";
+        }).length,
     };
 
     function handleApplyFilters() {
