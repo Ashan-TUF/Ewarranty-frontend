@@ -437,7 +437,8 @@ export default function SubmitMachineInstallationPage() {
         }
     }, [form.machineModel, machines, selectedMachineCode]);
 
-    function handleMachineChange(machineCode: string) {
+    function handleMachineChange(machineCode: string | null) {
+        machineCode = machineCode ?? "";
         setSelectedMachineCode(machineCode);
 
         const machine = machines.find((item) => item.machineCode === machineCode);
@@ -449,7 +450,8 @@ export default function SubmitMachineInstallationPage() {
         }));
     }
 
-    function handleMachineModelChange(modelCode: string) {
+    function handleMachineModelChange(modelCode: string | null) {
+        modelCode = modelCode ?? "";
         const selectedModel = machineModels.find((model) => model.modelCode === modelCode);
 
         setForm((current) => ({
