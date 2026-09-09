@@ -243,16 +243,26 @@ export default function MachineListPage() {
                 body: formData,
             });
 
-            const payload = (await response.json().catch(() => null)) as {
+            const responseText = await response.text();
+            let payload: {
                 success?: boolean;
                 message?: string;
                 data?: {
                     errors?: string[];
                 };
-            } | null;
+            } | null = null;
+
+            try {
+                payload = responseText ? JSON.parse(responseText) : null;
+            } catch {
+                // Keep the raw response for servers that return non-JSON errors.
+            }
 
             if (!response.ok) {
-                const message = payload?.message || "Machine bulk upload failed.";
+                const message =
+                    payload?.message ||
+                    responseText ||
+                    `Machine bulk upload failed (HTTP ${response.status}).`;
 
                 throw new Error(message);
             }
