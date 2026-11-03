@@ -256,7 +256,7 @@ export function AddWarrantyDialog({
                         {/* Warranty Type */}
                         <div className="space-y-1.5">
                             <div className="flex items-center justify-between gap-3">
-                                <label className="text-sm font-medium">
+                                <label className="text-xs font-normal">
                                     Warranty Type
                                 </label>
 
@@ -317,7 +317,7 @@ export function AddWarrantyDialog({
                             />
 
                             {errors.warrantyTypeCode && (
-                                <p className="text-sm text-destructive">
+                                <p className="text-xs text-destructive">
                                     {
                                         errors
                                             .warrantyTypeCode
@@ -332,7 +332,7 @@ export function AddWarrantyDialog({
                             <div className="space-y-1.5">
                                 <label
                                     htmlFor="warrantyPeriod"
-                                    className="text-sm font-medium"
+                                    className="text-xs font-normal"
                                 >
                                     Warranty Period
                                 </label>
@@ -350,7 +350,7 @@ export function AddWarrantyDialog({
                                 />
 
                                 {errors.warrantyPeriod && (
-                                    <p className="text-sm text-destructive">
+                                    <p className="text-xs text-destructive">
                                         {
                                             errors
                                                 .warrantyPeriod
@@ -361,7 +361,7 @@ export function AddWarrantyDialog({
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-sm font-medium">
+                                <label className="text-xs font-normal">
                                     Period Unit
                                 </label>
 
@@ -374,7 +374,7 @@ export function AddWarrantyDialog({
                                 />
 
                                 {errors.warrantyPeriodUnit && (
-                                    <p className="text-sm text-destructive">
+                                    <p className="text-xs text-destructive">
                                         {
                                             errors
                                                 .warrantyPeriodUnit
@@ -387,7 +387,7 @@ export function AddWarrantyDialog({
 
                         {/* Warranty Rule */}
                         <div className="space-y-1.5">
-                            <label className="text-sm font-medium">
+                            <label className="text-xs font-normal">
                                 Warranty Rule
                             </label>
 
@@ -400,7 +400,7 @@ export function AddWarrantyDialog({
                             />
 
                             {errors.ruleType && (
-                                <p className="text-sm text-destructive">
+                                <p className="text-xs text-destructive">
                                     {errors.ruleType.message}
                                 </p>
                             )}
@@ -411,7 +411,7 @@ export function AddWarrantyDialog({
                             <div className="space-y-1.5">
                                 <label
                                     htmlFor="warrantyCopyLimit"
-                                    className="text-sm font-medium"
+                                    className="text-xs font-normal"
                                 >
                                     Copy Limit
                                 </label>
@@ -437,7 +437,7 @@ export function AddWarrantyDialog({
                                 />
 
                                 {errors.warrantyCopyLimit && (
-                                    <p className="text-sm text-destructive">
+                                    <p className="text-xs text-destructive">
                                         {
                                             errors
                                                 .warrantyCopyLimit
@@ -453,7 +453,7 @@ export function AddWarrantyDialog({
                             <div className="space-y-1.5">
                                 <label
                                     htmlFor="warrantyHourLimit"
-                                    className="text-sm font-medium"
+                                    className="text-xs font-normal"
                                 >
                                     Hour Limit
                                 </label>
@@ -479,7 +479,7 @@ export function AddWarrantyDialog({
                                 />
 
                                 {errors.warrantyHourLimit && (
-                                    <p className="text-sm text-destructive">
+                                    <p className="text-xs text-destructive">
                                         {
                                             errors
                                                 .warrantyHourLimit
@@ -494,7 +494,7 @@ export function AddWarrantyDialog({
                         <div className="space-y-1.5">
                             <label
                                 htmlFor="warrantyDescription"
-                                className="text-sm font-medium"
+                                className="text-xs font-normal"
                             >
                                 Description{" "}
                                 <span className="font-normal text-muted-foreground">
@@ -510,7 +510,7 @@ export function AddWarrantyDialog({
                             />
 
                             {errors.description && (
-                                <p className="text-sm text-destructive">
+                                <p className="text-xs text-destructive">
                                     {
                                         errors.description
                                             .message

@@ -4,20 +4,13 @@ import { useEffect, useState } from "react";
 import { AxiosError } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { motion } from "framer-motion";
-import { Plus } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+import { CategoryCombobox } from "../CategoryCombobox";
 import {
     Dialog,
     DialogContent,
@@ -186,40 +179,22 @@ export function AddMachineDialog() {
 
             <DialogContent
                 className="
-                    overflow-hidden
-                    border-border/60
-                    bg-background/1
+                    max-h-[calc(100dvh-2rem)] overflow-y-auto
+                    rounded-2xl border border-border
+                    bg-popover
                     p-0
-                    shadow-2xl
-                    backdrop-blur-3xl
-                    sm:max-w-2xl
+                    shadow-lg
+                    sm:max-w-[600px]
                 "
             >
-                <motion.div
-                    initial={{
-                        opacity: 0,
-                        scale: 0.96,
-                        y: 12,
-                        filter: "blur(8px)",
-                    }}
-                    animate={{
-                        opacity: 1,
-                        scale: 1,
-                        y: 0,
-                        filter: "blur(0px)",
-                    }}
-                    transition={{
-                        duration: 0.35,
-                        ease: [0.16, 1, 0.3, 1],
-                    }}
-                >
-                    <div className="border-b border-border/60 px-6 py-5">
-                        <DialogHeader>
-                            <DialogTitle className="text-xl font-semibold tracking-tight">
+                <div>
+                    <div className="border-b border-border/70 px-5 py-4 sm:px-6">
+                        <DialogHeader className="gap-1">
+                            <DialogTitle className="text-base font-medium tracking-tight">
                                 Register Machine
                             </DialogTitle>
 
-                            <DialogDescription>
+                            <DialogDescription className="text-xs font-normal">
                                 Add a new machine to the
                                 system.
                             </DialogDescription>
@@ -228,18 +203,18 @@ export function AddMachineDialog() {
 
                     <form
                         id="add-machine-form"
-                        className="space-y-5 px-6 py-6"
+                        className="space-y-4 px-5 py-4 sm:px-6"
                         onSubmit={handleSubmit(
                             onSubmit,
                             onInvalid
                         )}
                     >
-                        <div className="grid gap-5 md:grid-cols-2">
+                        <div className="grid gap-4 sm:grid-cols-2">
 
-                            <div className="space-y-1.5">
+                            <div className="space-y-2">
                                 <label
                                     htmlFor="machineName"
-                                    className="text-sm font-medium"
+                                    className="text-xs font-normal"
                                 >
                                     Machine Name
                                 </label>
@@ -249,7 +224,7 @@ export function AddMachineDialog() {
                                     placeholder="e.g. Multifunction Printer"
                                     autoFocus
                                     className={cn(
-                                        "h-10",
+                                        "h-10 border-border bg-muted/25 text-[13px] font-normal placeholder:text-xs hover:border-foreground/30 focus-visible:border-ring focus-visible:ring-ring/40",
                                         errors.machineName &&
                                         "border-destructive focus-visible:ring-destructive"
                                     )}
@@ -270,10 +245,10 @@ export function AddMachineDialog() {
                                     )}
                             </div>
 
-                            <div className="space-y-1.5">
+                            <div className="space-y-2">
                                 <label
                                     htmlFor="manufacturer"
-                                    className="text-sm font-medium"
+                                    className="text-xs font-normal"
                                 >
                                     Manufacturer
                                 </label>
@@ -282,7 +257,7 @@ export function AddMachineDialog() {
                                     id="manufacturer"
                                     placeholder="e.g. Ricoh"
                                     className={cn(
-                                        "h-10",
+                                        "h-10 border-border bg-muted/25 text-[13px] font-normal placeholder:text-xs hover:border-foreground/30 focus-visible:border-ring focus-visible:ring-ring/40",
                                         errors.manufacturer &&
                                         "border-destructive focus-visible:ring-destructive"
                                     )}
@@ -304,10 +279,10 @@ export function AddMachineDialog() {
                             </div>
                         </div>
 
-                        <div className="space-y-1.5">
+                        <div className="space-y-2">
                             <label
                                 htmlFor="category"
-                                className="text-sm font-medium"
+                                className="text-xs font-normal"
                             >
                                 Category
                             </label>
@@ -316,66 +291,15 @@ export function AddMachineDialog() {
                                 control={control}
                                 name="category"
                                 render={({ field }) => (
-                                    <Select
-                                        value={
-                                            field.value ??
-                                            ""
-                                        }
-                                        disabled={
-                                            isMachineCategoriesLoading ||
-                                            isMachineCategoriesError
-                                        }
-                                        onValueChange={(
-                                            value
-                                        ) =>
-                                            field.onChange(
-                                                value ??
-                                                ""
-                                            )
-                                        }
-                                    >
-                                        <SelectTrigger
-                                            id="category"
-                                            className={cn(
-                                                "h-10 w-full",
-                                                errors.category &&
-                                                "border-destructive focus-visible:ring-destructive"
-                                            )}
-                                        >
-                                            <SelectValue placeholder="Select a category" />
-                                        </SelectTrigger>
-
-                                        <SelectContent>
-                                            {isMachineCategoriesLoading && (
-                                                <SelectItem value="__loading" disabled>
-                                                    Loading categories...
-                                                </SelectItem>
-                                            )}
-
-                                            {isMachineCategoriesError && (
-                                                <SelectItem value="__error" disabled>
-                                                    Failed to load categories
-                                                </SelectItem>
-                                            )}
-
-                                            {!isMachineCategoriesLoading &&
-                                                !isMachineCategoriesError &&
-                                                machineCategories.map((category) => (
-                                                    <SelectItem
-                                                        key={
-                                                            category.id
-                                                        }
-                                                        value={
-                                                            category.name
-                                                        }
-                                                    >
-                                                        {
-                                                            category.name
-                                                        }
-                                                    </SelectItem>
-                                                ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <CategoryCombobox
+                                        categories={machineCategories}
+                                        value={field.value ?? ""}
+                                        onChange={field.onChange}
+                                        onBlur={field.onBlur}
+                                        disabled={isMachineCategoriesLoading || isMachineCategoriesError}
+                                        loading={isMachineCategoriesLoading}
+                                        invalid={!!errors.category}
+                                    />
                                 )}
                             />
 
@@ -389,10 +313,10 @@ export function AddMachineDialog() {
                             )}
                         </div>
 
-                        <div className="space-y-1.5">
+                        <div className="space-y-2">
                             <label
                                 htmlFor="description"
-                                className="text-sm font-medium"
+                                className="text-xs font-normal"
                             >
                                 Description{" "}
                                 <span className="font-normal text-muted-foreground">
@@ -402,10 +326,10 @@ export function AddMachineDialog() {
 
                             <Textarea
                                 id="description"
-                                rows={4}
+                                rows={3}
                                 placeholder="Add a short description..."
                                 className={cn(
-                                    "resize-none",
+                                    "min-h-20 resize-y border-border bg-muted/25 text-[13px] font-normal placeholder:text-xs hover:border-foreground/30 focus-visible:border-ring focus-visible:ring-ring/40",
                                     errors.description &&
                                     "border-destructive focus-visible:ring-destructive"
                                 )}
@@ -432,15 +356,17 @@ export function AddMachineDialog() {
                             justify-end
                             gap-2
                             border-t
-                            border-border/60
-                            bg-muted/20
-                            px-6
-                            py-4
+                            border-border/70
+                            px-5
+                            py-3
+                            sm:px-6
                         "
                     >
                         <Button
                             type="button"
                             variant="outline"
+                            size="sm"
+                            className="text-xs font-normal"
                             disabled={
                                 createMachineMutation.isPending
                             }
@@ -456,16 +382,19 @@ export function AddMachineDialog() {
                         <Button
                             type="submit"
                             form="add-machine-form"
+                            size="sm"
+                            className="text-xs font-normal"
                             disabled={
                                 createMachineMutation.isPending
                             }
                         >
+                            {createMachineMutation.isPending && <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />}
                             {createMachineMutation.isPending
                                 ? "Saving..."
                                 : "Save Machine"}
                         </Button>
                     </div>
-                </motion.div>
+                </div>
             </DialogContent>
         </Dialog>
     );

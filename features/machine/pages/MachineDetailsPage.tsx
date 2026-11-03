@@ -7,6 +7,8 @@ import { ArrowLeft, Plus } from "lucide-react";
 import AppHeader from "@/components/layout/AppHeader";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
+import { AssignAccessoryDialog } from "@/features/accessory/AssignAccessoryDialog";
+import type { MachineModelResponse } from "@/features/machine/types/machine";
 
 import {
     AddModelDialog,
@@ -33,6 +35,7 @@ export default function MachineDetailsPage({
 }: MachineDetailsPageProps) {
     const [isAddWarrantyTypeOpen, setIsAddWarrantyTypeOpen] =
         useState(false);
+    const [accessoryModel, setAccessoryModel] = useState<MachineModelResponse | null>(null);
 
     const createWarrantyType = useCreateWarrantyType();
 
@@ -118,6 +121,7 @@ export default function MachineDetailsPage({
         <>
             <AppHeader
                 title={machine.machineName}
+                compact
                 description={`Machine details, models, and warranties for ${machine.machineCode}.`}
                 actions={
                     <div className="flex items-center gap-2">
@@ -125,6 +129,7 @@ export default function MachineDetailsPage({
                             type="button"
                             variant="outline"
                             size="sm"
+                            className="text-xs font-normal"
                             onClick={() =>
                                 setIsAddWarrantyTypeOpen(true)
                             }
@@ -140,11 +145,11 @@ export default function MachineDetailsPage({
                 }
             />
 
-            <main className="space-y-6 p-4 sm:p-6">
+            <main className="space-y-5 p-4 sm:p-6">
 
                 <Link
                     href={ROUTES.MACHINES}
-                    className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="inline-flex items-center gap-1.5 text-xs font-normal text-muted-foreground transition-colors hover:text-foreground"
                 >
                     <ArrowLeft className="size-4" />
                     Back to machines
@@ -167,6 +172,7 @@ export default function MachineDetailsPage({
                     onPageSizeChange={handlePageSizeChange}
                     onViewDetails={openModelDetails}
                     onAddWarranty={openAddWarranty}
+                    onAddAccessory={setAccessoryModel}
                 />
             </main>
 
@@ -193,6 +199,14 @@ export default function MachineDetailsPage({
                     onOpenChange={
                         handleWarrantyDialogOpenChange
                     }
+                />
+            )}
+            {accessoryModel && (
+                <AssignAccessoryDialog
+                    modelCode={accessoryModel.modelCode}
+                    modelName={accessoryModel.modelName}
+                    open={true}
+                    onOpenChange={(open) => { if (!open) setAccessoryModel(null); }}
                 />
             )}
 

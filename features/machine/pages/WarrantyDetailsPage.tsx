@@ -26,7 +26,7 @@ import { demoMachines } from "../data/demo-machines";
 import { PageState } from "@/features/machine/components";
 
 function formatDate(dateValue?: string) {
-    if (!dateValue) return "—";
+    if (!dateValue) return "â€”";
     return new Intl.DateTimeFormat("en-GB", {
         day: "2-digit",
         month: "short",
@@ -100,7 +100,7 @@ export default function WarrantyDetailsPage({
                                         {warranty.isActive ? "Active" : "Inactive"}
                                     </Badge>
                                 </div>
-                                <CardTitle className="mt-1.5 text-xl">
+                                <CardTitle className="mt-1 text-base font-normal">
                                     {warranty.warrantyTypeName}
                                 </CardTitle>
                                 <CardDescription className="mt-1">

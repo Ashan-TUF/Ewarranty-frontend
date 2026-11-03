@@ -16,19 +16,19 @@ export function MachineSummaryCard({
     totalModels,
 }: MachineSummaryCardProps) {
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="text-xl">
+        <Card size="sm" className="gap-2 py-2.5">
+            <CardHeader className="gap-0.5">
+                <CardTitle className="text-sm font-normal">
                     {machine.machineName}
                 </CardTitle>
 
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs font-normal text-muted-foreground">
                     {machine.description || "No description available"}
                 </p>
             </CardHeader>
 
             <CardContent>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
                     <MachineStat
                         label="Machine Code"
                         value={machine.machineCode}

@@ -14,6 +14,7 @@ import {
     PageState,
 } from "@/features/machine/components";
 import { useMachine } from "@/features/machine/hooks";
+import { ModelAccessoryList } from "@/features/accessory/ModelAccessoryList";
 
 interface ModelDetailsPageProps {
     machineCode: string;
@@ -98,6 +99,7 @@ export default function ModelDetailsPage({
                     modelCode={model.modelCode}
                     warranties={model.warranties}
                 />
+                <ModelAccessoryList modelCode={model.modelCode} />
             </main>
 
             <AddWarrantyDialog

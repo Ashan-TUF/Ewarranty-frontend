@@ -102,7 +102,7 @@ export function AddWarrantyTypeDialog({
                     <div className="space-y-1.5">
                         <label
                             htmlFor="warrantyTypeName"
-                            className="text-sm font-medium"
+                            className="text-xs font-normal"
                         >
                             Warranty Type Name
                         </label>
@@ -114,7 +114,7 @@ export function AddWarrantyTypeDialog({
                         />
 
                         {errors.warrantyTypeName && (
-                            <p className="text-sm text-destructive">
+                            <p className="text-xs text-destructive">
                                 {errors.warrantyTypeName.message}
                             </p>
                         )}
@@ -123,7 +123,7 @@ export function AddWarrantyTypeDialog({
                     <div className="space-y-1.5">
                         <label
                             htmlFor="warrantyTypeDescription"
-                            className="text-sm font-medium"
+                            className="text-xs font-normal"
                         >
                             Description{" "}
                             <span className="text-muted-foreground">
@@ -139,7 +139,7 @@ export function AddWarrantyTypeDialog({
                         />
 
                         {errors.description && (
-                            <p className="text-sm text-destructive">
+                            <p className="text-xs text-destructive">
                                 {errors.description.message}
                             </p>
                         )}

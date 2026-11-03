@@ -149,7 +149,7 @@ function InfoItem({
             <div className="mt-1 flex items-center gap-2">
                 <Icon className="size-4 text-primary" />
 
-                <p className="text-sm font-medium">
+                <p className="text-xs font-normal">
                     {value}
                 </p>
             </div>

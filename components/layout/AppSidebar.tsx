@@ -37,6 +37,11 @@ const items = [
         url: ROUTES.MACHINES,
         icon: Cpu,
     },
+    {
+        title: "Accessories",
+        url: ROUTES.ACCESSORIES,
+        icon: Package,
+    },
 ];
 
 const installationItems = [
@@ -64,7 +69,7 @@ export function AppSidebar() {
     return (
         <Sidebar>
             <SidebarContent>
-                <SidebarGroup className="flex flex-col gap-8">
+                <SidebarGroup className="flex flex-col gap-6">
                     <SidebarGroupLabel className="flex justify-center pt-4">
                         <AppLogo />
                     </SidebarGroupLabel>
@@ -75,6 +80,7 @@ export function AppSidebar() {
                                 <SidebarMenuButton
                                     render={<Link href={item.url} prefetch />}
                                     isActive={pathname.startsWith(item.url)}
+                                    className="text-[13px] font-normal"
                                 >
                                     <item.icon className="size-4" />
                                     <span>{item.title}</span>
@@ -86,6 +92,7 @@ export function AppSidebar() {
                             <SidebarMenuButton
                                 render={<Link href={ROUTES.INSTALLATION_SUMMARY} prefetch />}
                                 isActive={isInstallationsActive}
+                                className="text-[13px] font-normal"
                             >
                                 <Wrench className="size-4" />
                                 <span>Installations</span>
@@ -101,7 +108,7 @@ export function AppSidebar() {
                                                 render={<Link href={item.url} prefetch />}
                                                 isActive={pathname.startsWith(item.url)}
                                                 size="sm"
-                                                className="gap-2 text-sidebar-foreground/80"
+                                                className="gap-2 text-xs font-normal text-sidebar-foreground/80"
                                             >
                                                 <item.icon className="size-3.5" />
                                                 <span>{item.title}</span>

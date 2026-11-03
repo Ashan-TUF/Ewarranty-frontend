@@ -16,6 +16,7 @@ interface MachinePaginationProps {
     pageSize: number;
     totalItems: number;
     itemLabel?: string;
+    compact?: boolean;
     onPageChange: (page: number) => void;
     onPageSizeChange: (pageSize: number) => void;
 }
@@ -25,6 +26,7 @@ export function MachinePagination({
     pageSize,
     totalItems,
     itemLabel = "machines",
+    compact = false,
     onPageChange,
     onPageSizeChange,
 }: MachinePaginationProps) {
@@ -35,28 +37,28 @@ export function MachinePagination({
     const pageNumbers = getPageNumbers(page, totalPages);
 
     return (
-        <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-muted-foreground">
-                Showing <span className="font-medium text-foreground">{rangeStart}</span>
+        <div className={`flex flex-col border-t sm:flex-row sm:items-center sm:justify-between ${compact ? "gap-1.5 pt-2" : "gap-3 pt-4"}`}>
+            <p className="text-xs font-normal text-muted-foreground">
+                Showing <span className="font-normal text-foreground">{rangeStart}</span>
                 {"–"}
-                <span className="font-medium text-foreground">{rangeEnd}</span> of{" "}
-                <span className="font-medium text-foreground">{totalItems}</span> {itemLabel}
+                <span className="font-normal text-foreground">{rangeEnd}</span> of{" "}
+                <span className="font-normal text-foreground">{totalItems}</span> {itemLabel}
             </p>
 
             <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                 <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Rows per page</span>
+                    <span className="text-xs font-normal text-muted-foreground">Rows per page</span>
                     <Select
                         value={String(pageSize)}
                         onValueChange={(v) => onPageSizeChange(Number(v))}
                     >
-                        <SelectTrigger size="sm" className="w-[72px]">
+                        <SelectTrigger size="sm" className="w-[72px] text-xs font-normal">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="10">10</SelectItem>
-                            <SelectItem value="20">20</SelectItem>
-                            <SelectItem value="50">50</SelectItem>
+                            <SelectItem className="text-xs font-normal" value="10">10</SelectItem>
+                            <SelectItem className="text-xs font-normal" value="20">20</SelectItem>
+                            <SelectItem className="text-xs font-normal" value="50">50</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -77,7 +79,7 @@ export function MachinePagination({
                         entry === "ellipsis" ? (
                             <span
                                 key={`ellipsis-${idx}`}
-                                className="px-1.5 text-sm text-muted-foreground"
+                                className="px-1.5 text-xs text-muted-foreground"
                             >
                                 &hellip;
                             </span>

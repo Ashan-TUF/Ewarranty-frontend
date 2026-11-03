@@ -52,7 +52,7 @@ export function ConfirmInstallationDialog({
                 </DialogHeader>
 
                 <div className="space-y-1.5">
-                    <label className="text-sm font-medium" htmlFor="invoiceNumber">
+                    <label className="text-xs font-normal" htmlFor="invoiceNumber">
                         Invoice Number
                         <span className="ml-1 text-muted-foreground">(optional)</span>
                     </label>

@@ -92,7 +92,7 @@ export function WarrantyFilters({
                 <div className="grid gap-3 md:grid-cols-3">
                     {/* Warranty Type */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-muted-foreground">
+                        <label className="text-xs font-normal text-muted-foreground">
                             Warranty Type
                         </label>
 
@@ -140,7 +140,7 @@ export function WarrantyFilters({
 
                     {/* Warranty Period */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-muted-foreground">
+                        <label className="text-xs font-normal text-muted-foreground">
                             Warranty Period
                         </label>
 
@@ -210,7 +210,7 @@ export function WarrantyFilters({
 
                     {/* Rule Type */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-muted-foreground">
+                        <label className="text-xs font-normal text-muted-foreground">
                             Rule Type
                         </label>
 

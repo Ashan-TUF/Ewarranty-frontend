@@ -154,7 +154,7 @@ export function ModelWarrantyList({
     return (
         <section className="space-y-4">
             <div>
-                <h2 className="text-sm font-semibold">
+                <h2 className="text-sm font-normal">
                     Warranties
                 </h2>
 
@@ -221,7 +221,7 @@ export function ModelWarrantyList({
 function WarrantyEmptyState() {
     return (
         <section className="space-y-3">
-            <h2 className="text-sm font-semibold">
+            <h2 className="text-sm font-normal">
                 Warranties
             </h2>
 

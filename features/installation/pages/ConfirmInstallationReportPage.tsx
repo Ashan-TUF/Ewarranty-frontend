@@ -273,7 +273,7 @@ export default function ConfirmInstallationReportPage() {
                                     <FileSearch className="size-4" />
                                 </span>
                             </div>
-                            <CardTitle className="mt-2 text-3xl">{summary.totalCount}</CardTitle>
+                            <CardTitle className="mt-2 text-2xl">{summary.totalCount}</CardTitle>
                         </CardHeader>
                         <CardContent className="text-sm text-muted-foreground">
                             Total installation reports
@@ -289,7 +289,7 @@ export default function ConfirmInstallationReportPage() {
                                     <Clock3 className="size-4" />
                                 </span>
                             </div>
-                            <CardTitle className="mt-2 text-3xl">{summary.pendingCount}</CardTitle>
+                            <CardTitle className="mt-2 text-2xl">{summary.pendingCount}</CardTitle>
                         </CardHeader>
                         <CardContent className="text-sm text-muted-foreground">
                             Pending reports in current page
@@ -305,7 +305,7 @@ export default function ConfirmInstallationReportPage() {
                                     <CheckCircle2 className="size-4" />
                                 </span>
                             </div>
-                            <CardTitle className="mt-2 text-3xl">{summary.confirmedCount}</CardTitle>
+                            <CardTitle className="mt-2 text-2xl">{summary.confirmedCount}</CardTitle>
                         </CardHeader>
                         <CardContent className="text-sm text-muted-foreground">
                             Confirmed reports in current page

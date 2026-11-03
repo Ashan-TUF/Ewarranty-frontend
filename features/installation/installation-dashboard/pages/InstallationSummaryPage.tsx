@@ -187,7 +187,7 @@ function StatusDonut({
 
                 <div className="relative flex size-28 flex-col items-center justify-center rounded-full border border-border/70 bg-card/95 shadow-sm backdrop-blur animate-bounce [animation-duration:2.8s]">
                     <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Total</span>
-                    <span className="text-3xl font-semibold leading-none">{total}</span>
+                    <span className="text-2xl font-normal leading-none">{total}</span>
                     <span className="mt-1 text-[11px] text-muted-foreground">reports</span>
                 </div>
 
@@ -264,7 +264,7 @@ function WeeklyInstallationPulse({
 
                     return (
                         <div key={day} className="flex flex-col items-center gap-1.5">
-                            <span className="text-[10px] font-semibold text-muted-foreground">{count}</span>
+                            <span className="text-[10px] font-normal text-muted-foreground">{count}</span>
                             <div className="flex h-32 w-full items-end justify-center rounded-lg bg-muted/50 p-1">
                                 <div
                                     className="relative w-full max-w-8 overflow-hidden rounded-md bg-gradient-to-t from-cyan-600 via-sky-500 to-teal-400 shadow-sm animate-pulse"
@@ -512,7 +512,7 @@ export default function InstallationSummaryPage() {
                                             <FileBarChart2 className="size-4" />
                                         </span>
                                     </div>
-                                    <CardTitle className="mt-2 text-3xl font-semibold">{totalReports}</CardTitle>
+                                    <CardTitle className="mt-2 text-2xl font-normal">{totalReports}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <p className="text-sm text-muted-foreground">
@@ -530,7 +530,7 @@ export default function InstallationSummaryPage() {
                                             <Clock3 className="size-4" />
                                         </span>
                                     </div>
-                                    <CardTitle className="mt-2 inline-flex items-center gap-2 text-3xl font-semibold">
+                                    <CardTitle className="mt-2 inline-flex items-center gap-2 text-2xl font-normal">
                                         {pendingReports}
                                         <span className="relative inline-flex size-2.5">
                                             <span className="absolute inline-flex h-full w-full rounded-full bg-amber-400/70 animate-ping" />
@@ -554,7 +554,7 @@ export default function InstallationSummaryPage() {
                                             <CheckCircle2 className="size-4" />
                                         </span>
                                     </div>
-                                    <CardTitle className="mt-2 text-3xl font-semibold">{completedReports}</CardTitle>
+                                    <CardTitle className="mt-2 text-2xl font-normal">{completedReports}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <p className="text-sm text-muted-foreground">
@@ -572,7 +572,7 @@ export default function InstallationSummaryPage() {
                                             <ListChecks className="size-4" />
                                         </span>
                                     </div>
-                                    <CardTitle className="mt-2 text-3xl font-semibold">{activeReports}</CardTitle>
+                                    <CardTitle className="mt-2 text-2xl font-normal">{activeReports}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <p className="text-sm text-muted-foreground">

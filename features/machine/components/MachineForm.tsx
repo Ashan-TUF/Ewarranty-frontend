@@ -95,7 +95,7 @@ export default function MachineForm() {
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit, onInvalid)}>
                     <div className="grid gap-6 md:grid-cols-2">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium" htmlFor="machineName">
+                            <label className="text-xs font-normal" htmlFor="machineName">
                                 Machine Name
                             </label>
 
@@ -108,7 +108,7 @@ export default function MachineForm() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium" htmlFor="manufacturer">
+                            <label className="text-xs font-normal" htmlFor="manufacturer">
                                 Manufacturer
                             </label>
 
@@ -122,7 +122,7 @@ export default function MachineForm() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-medium" htmlFor="category">
+                        <label className="text-xs font-normal" htmlFor="category">
                             Category
                         </label>
 
@@ -171,7 +171,7 @@ export default function MachineForm() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-medium" htmlFor="description">
+                        <label className="text-xs font-normal" htmlFor="description">
                             Description
                         </label>
 

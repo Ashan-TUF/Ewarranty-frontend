@@ -102,7 +102,7 @@ export function InstallationReportFilters({
                     <div className="rounded-xl border bg-card/50 p-4">
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             <div className="space-y-1.5">
-                                <label className="text-xs font-medium text-muted-foreground">Installation ID</label>
+                                <label className="text-xs font-normal text-muted-foreground">Installation ID</label>
                                 <Input
                                     type="number"
                                     min={1}
@@ -118,7 +118,7 @@ export function InstallationReportFilters({
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-medium text-muted-foreground">Status</label>
+                                <label className="text-xs font-normal text-muted-foreground">Status</label>
                                 <Select
                                     value={values.status || "all"}
                                     onValueChange={(value) =>
@@ -142,7 +142,7 @@ export function InstallationReportFilters({
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-medium text-muted-foreground">From Date</label>
+                                <label className="text-xs font-normal text-muted-foreground">From Date</label>
                                 <Input
                                     type="date"
                                     value={values.fromDate ?? ""}
@@ -156,7 +156,7 @@ export function InstallationReportFilters({
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-medium text-muted-foreground">To Date</label>
+                                <label className="text-xs font-normal text-muted-foreground">To Date</label>
                                 <Input
                                     type="date"
                                     value={values.toDate ?? ""}
@@ -170,7 +170,7 @@ export function InstallationReportFilters({
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-medium text-muted-foreground">Sort By</label>
+                                <label className="text-xs font-normal text-muted-foreground">Sort By</label>
                                 <Select
                                     value={values.sortBy ?? "CreatedAt"}
                                     onValueChange={(value) =>
@@ -194,7 +194,7 @@ export function InstallationReportFilters({
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-medium text-muted-foreground">Sort Order</label>
+                                <label className="text-xs font-normal text-muted-foreground">Sort Order</label>
                                 <Select
                                     value={values.sortOrder ?? "desc"}
                                     onValueChange={(value) =>
