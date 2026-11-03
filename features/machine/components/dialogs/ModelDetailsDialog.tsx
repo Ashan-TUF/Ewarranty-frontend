@@ -6,16 +6,21 @@ import {
     ArrowRight,
     CalendarDays,
     Clock,
+    ChevronDown,
     Copy,
     Gauge,
+    Network,
+    Palette,
     Plus,
     RotateCcw,
+    SearchX,
     ShieldCheck,
     ShieldX,
     SlidersHorizontal,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { DetailRow } from "@/components/ui/detail-row";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -44,6 +49,7 @@ import { MachinePagination } from "../MachinePagination";
 import { useWarrantyTypes } from "../../hooks/useWarrantyTypes";
 import { useCreateWarrantyType } from "../../hooks/useCreateWarrantyType";
 import { AddWarrantyTypeDialog } from "./AddWarrantyTypeDialog";
+import { ModelAccessoryList } from "@/features/accessory/ModelAccessoryList";
 
 /* =========================================================
    HELPERS
@@ -88,6 +94,7 @@ export function ModelDetailsDialog({
 }: ModelDetailsDialogProps) {
     const [warrantyTypeOpen, setWarrantyTypeOpen] =
         useState(false);
+    const [filtersOpen, setFiltersOpen] = useState(false);
 
     /* ---------------------------------------------------------
        Detail View
@@ -185,6 +192,7 @@ export function ModelDetailsDialog({
 
     const hasIncompletePeriodFilter =
         hasPeriod !== hasPeriodUnit;
+    const activeFilterCount = Number(!!warrantyTypeCode) + Number(hasPeriod) + Number(hasPeriodUnit) + Number(ruleType !== "all");
 
     /* =========================================================
        FILTERING
@@ -326,6 +334,7 @@ export function ModelDetailsDialog({
             setSelectedWarrantyCode(null);
             resetWarrantyFilters();
             setWarrantyTypeOpen(false);
+            setFiltersOpen(false);
         }
     }
 
@@ -342,7 +351,7 @@ export function ModelDetailsDialog({
             open={open}
             onOpenChange={handleOpenChange}
         >
-            <DialogContent className="max-h-[85vh] w-full !max-w-2xl overflow-y-auto sm:max-w-2xl">
+            <DialogContent className={`max-h-[85vh] w-full gap-4 overflow-x-hidden overflow-y-auto ${selectedWarranty ? "!max-w-[480px]" : "!max-w-[740px]"}`}>
                 {selectedWarranty ? (
                     <WarrantyView
                         machine={machine}
@@ -358,125 +367,80 @@ export function ModelDetailsDialog({
                             MODEL HEADER
                         ================================================= */}
 
-                        <DialogHeader>
+                        <DialogHeader className="sticky top-0 z-10 -mx-4 -mt-4 gap-1 border-b border-border/60 bg-popover px-4 pt-4 pb-3">
                             <div className="flex items-start justify-between gap-3 pr-6">
-                                <div>
+                                <div className="min-w-0 space-y-1">
                                     <Badge
                                         variant="outline"
-                                        className="font-mono text-[11px]"
+                                        className="font-mono text-xs font-normal"
                                     >
                                         {model.modelCode}
                                     </Badge>
+                                    <Badge variant={model.isActive ? "secondary" : "destructive"} className="text-[11px] font-normal">
+                                        {model.isActive ? "Active" : "Inactive"}
+                                    </Badge>
 
-                                    <DialogTitle className="mt-1.5 text-xl">
+                                    <DialogTitle className="text-[15px] font-normal">
                                         {model.modelName}
                                     </DialogTitle>
 
-                                    <DialogDescription className="mt-1">
+                                    <DialogDescription className="text-xs font-normal">
                                         {machine.machineName}
                                         {" · "}
                                         {machine.machineCode}
                                     </DialogDescription>
                                 </div>
 
-                                <div className="flex flex-wrap justify-end gap-1.5">
-                                    {model.colorType && (
-                                        <Badge variant="secondary">
-                                            {model.colorType}
-                                        </Badge>
-                                    )}
-
-                                    {model.networkType && (
-                                        <Badge variant="secondary">
-                                            {model.networkType}
-                                        </Badge>
-                                    )}
-                                </div>
                             </div>
                         </DialogHeader>
 
                         {/* Model Description */}
 
                         {model.description && (
-                            <p className="text-sm text-muted-foreground">
+                            <p className="rounded-lg bg-muted/35 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
                                 {model.description}
                             </p>
                         )}
+                        <div className="grid gap-x-4 border-b border-border/60 pb-2 sm:grid-cols-3">
+                            {model.colorType && <DetailRow label="Color Type" icon={<Palette />} value={model.colorType} />}
+                            {model.networkType && <DetailRow label="Network Type" icon={<Network />} value={model.networkType} />}
+                            <DetailRow label="Registered" icon={<CalendarDays />} value={formatDate(model.createdAt)} />
+                        </div>
 
                         {/* =================================================
                             WARRANTIES
                         ================================================= */}
 
-                        <section className="space-y-4">
-                            <div>
-                                <h3 className="text-sm font-semibold">
-                                    Warranties
-                                </h3>
-
-                                <p className="text-xs text-muted-foreground">
-                                    Showing{" "}
-                                    {filteredWarranties.length} of{" "}
-                                    {warranties.length} warranties
-                                </p>
+                        <section className="space-y-2.5">
+                            <div className="flex flex-wrap items-center justify-between gap-1.5">
+                                <div>
+                                    <h3 className="text-sm font-normal">Warranties</h3>
+                                    <p className="text-xs font-normal text-muted-foreground">Showing {filteredWarranties.length} of {warranties.length} warranties</p>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-1">
+                                    <Button type="button" variant="outline" size="sm" className="text-xs font-normal" aria-expanded={filtersOpen} aria-controls="warranty-filter-panel" onClick={() => setFiltersOpen((value) => !value)}>
+                                        <SlidersHorizontal className="size-3.5" /> Filters
+                                        {activeFilterCount > 0 && <Badge variant="secondary" className="px-1.5 text-[10px]">{activeFilterCount}</Badge>}
+                                        <ChevronDown className={`size-3.5 transition-transform duration-200 motion-reduce:transition-none ${filtersOpen ? "rotate-180" : ""}`} />
+                                    </Button>
+                                    <Button type="button" variant="outline" size="sm" className="text-xs font-normal" onClick={() => setWarrantyTypeOpen(true)}><Plus className="size-3.5" /> Add Type</Button>
+                                    {activeFilterCount > 0 && <Button type="button" variant="ghost" size="sm" className="text-xs font-normal" onClick={resetWarrantyFilters}><RotateCcw className="size-3.5" /> Reset</Button>}
+                                </div>
                             </div>
 
                             {/* =================================================
                                 FILTER PANEL
                             ================================================= */}
 
-                            <div className="rounded-xl border border-border/70 bg-muted/20 p-4">
-                                {/* Filter Header */}
-
-                                <div className="mb-4 flex items-center justify-between gap-3">
-                                    <div className="flex items-center gap-2">
-                                        <SlidersHorizontal className="size-4 text-muted-foreground" />
-
-                                        <div>
-                                            <p className="text-sm font-medium">
-                                                Filter Warranties
-                                            </p>
-
-                                            <p className="text-xs text-muted-foreground">
-                                                Filter by warranty type,
-                                                period and rule.
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-2">
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() =>
-                                                setWarrantyTypeOpen(true)
-                                            }
-                                        >
-                                            <Plus className="size-3.5" />
-                                            Add Type
-                                        </Button>
-
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={
-                                                resetWarrantyFilters
-                                            }
-                                        >
-                                            <RotateCcw className="size-3.5" />
-                                            Reset
-                                        </Button>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4">
+                            <div id="warranty-filter-panel" className={`grid transition-[grid-template-rows,opacity] duration-200 motion-reduce:transition-none ${filtersOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`} aria-hidden={!filtersOpen} inert={!filtersOpen}>
+                                <div className="min-h-0 overflow-hidden">
+                                <div className="grid gap-2.5 rounded-lg border border-border/70 bg-muted/20 p-3 sm:grid-cols-2">
                                     {/* =================================================
                                         WARRANTY TYPE
                                     ================================================= */}
 
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-medium text-muted-foreground">
+                                    <div className="space-y-1">
+                                        <label className="text-xs font-normal text-muted-foreground">
                                             Warranty Type
                                         </label>
 
@@ -489,11 +453,12 @@ export function ModelDetailsDialog({
                                                 isWarrantyTypesLoading
                                             }
                                         >
-                                            <SelectTrigger className="w-full">
+                                            <SelectTrigger className="h-8 w-full px-2 text-xs font-normal">
                                                 {selectedWarrantyType ? (
-                                                    <span>{selectedWarrantyType.name}</span>
+                                                    <span className="text-xs font-normal">{selectedWarrantyType.name}</span>
                                                 ) : (
                                                     <SelectValue
+                                                        className="text-xs font-normal"
                                                         placeholder={
                                                             isWarrantyTypesLoading
                                                                 ? "Loading warranty types..."
@@ -507,6 +472,7 @@ export function ModelDetailsDialog({
                                                 {warrantyTypeFilterOptions.map(
                                                     (warrantyType) => (
                                                         <SelectItem
+                                                            className="text-xs font-normal"
                                                             key={
                                                                 warrantyType.code
                                                             }
@@ -528,13 +494,14 @@ export function ModelDetailsDialog({
                                         WARRANTY PERIOD GROUP
                                     ================================================= */}
 
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-medium text-muted-foreground">
+                                    <div className="space-y-1">
+                                        <label className="text-xs font-normal text-muted-foreground">
                                             Warranty Period
                                         </label>
 
-                                        <div className="grid grid-cols-2 gap-2">
+                                        <div className="grid grid-cols-2 gap-1.5">
                                             <Input
+                                                className="h-8 px-2 text-xs font-normal placeholder:text-xs placeholder:font-normal md:text-xs"
                                                 type="number"
                                                 min={1}
                                                 value={
@@ -556,20 +523,20 @@ export function ModelDetailsDialog({
                                                     handleWarrantyPeriodUnitChange
                                                 }
                                             >
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue placeholder="Select unit" />
+                                                <SelectTrigger className="h-8 w-full px-2 text-xs font-normal">
+                                                    <SelectValue className="text-xs font-normal" placeholder="Select unit" />
                                                 </SelectTrigger>
 
                                                 <SelectContent>
-                                                    <SelectItem value="Days">
+                                                    <SelectItem className="text-xs font-normal" value="Days">
                                                         Days
                                                     </SelectItem>
 
-                                                    <SelectItem value="Months">
+                                                    <SelectItem className="text-xs font-normal" value="Months">
                                                         Months
                                                     </SelectItem>
 
-                                                    <SelectItem value="Years">
+                                                    <SelectItem className="text-xs font-normal" value="Years">
                                                         Years
                                                     </SelectItem>
                                                 </SelectContent>
@@ -589,8 +556,8 @@ export function ModelDetailsDialog({
                                         RULE TYPE
                                     ================================================= */}
 
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-medium text-muted-foreground">
+                                    <div className="space-y-1">
+                                        <label className="text-xs font-normal text-muted-foreground">
                                             Rule Type
                                         </label>
 
@@ -600,24 +567,24 @@ export function ModelDetailsDialog({
                                                 handleRuleTypeChange
                                             }
                                         >
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Select rule type" />
+                                            <SelectTrigger className="h-8 w-full px-2 text-xs font-normal">
+                                                <SelectValue className="text-xs font-normal" placeholder="Select rule type" />
                                             </SelectTrigger>
 
                                             <SelectContent>
-                                                <SelectItem value="all">
+                                                <SelectItem className="text-xs font-normal" value="all">
                                                     All Rules
                                                 </SelectItem>
 
-                                                <SelectItem value="TimeOnly">
+                                                <SelectItem className="text-xs font-normal" value="TimeOnly">
                                                     Time Only
                                                 </SelectItem>
 
-                                                <SelectItem value="TimeOrCopies">
+                                                <SelectItem className="text-xs font-normal" value="TimeOrCopies">
                                                     Time or Copies
                                                 </SelectItem>
 
-                                                <SelectItem value="TimeOrHours">
+                                                <SelectItem className="text-xs font-normal" value="TimeOrHours">
                                                     Time or Hours
                                                 </SelectItem>
                                             </SelectContent>
@@ -625,18 +592,19 @@ export function ModelDetailsDialog({
                                     </div>
                                 </div>
                             </div>
+                            </div>
 
                             {/* =================================================
                                 NO WARRANTIES
                             ================================================= */}
 
                             {warranties.length === 0 ? (
-                                <div className="rounded-xl border border-dashed py-10 text-center">
-                                    <p className="font-medium">
+                                <div className="rounded-lg bg-muted/35 px-3 py-4 text-center">
+                                    <p className="text-xs font-normal">
                                         No warranties added yet
                                     </p>
 
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="mt-1 text-[11px] text-muted-foreground">
                                         Add a warranty for this model
                                         to see it listed here.
                                     </p>
@@ -646,24 +614,20 @@ export function ModelDetailsDialog({
                                    NO MATCHING RESULTS
                                 ================================================= */
 
-                                <div className="rounded-xl border border-dashed py-10 text-center">
-                                    <p className="font-medium">
-                                        No matching warranties
-                                    </p>
-
-                                    <p className="text-sm text-muted-foreground">
-                                        No warranties match the
-                                        selected filters.
-                                    </p>
-
+                                <div className="rounded-lg border border-dashed px-3 py-2.5">
+                                    <div className="flex items-start gap-2">
+                                        <SearchX className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                                        <div className="min-w-0 space-y-0.5">
+                                            <p className="text-xs font-normal">No matching warranties</p>
+                                            <p className="text-[11px] font-normal text-muted-foreground">No warranties match the selected filters.</p>
+                                        </div>
+                                    </div>
                                     <Button
                                         type="button"
                                         variant="outline"
                                         size="sm"
-                                        className="mt-3"
-                                        onClick={
-                                            resetWarrantyFilters
-                                        }
+                                        className="mt-2 text-xs font-normal"
+                                        onClick={resetWarrantyFilters}
                                     >
                                         <RotateCcw className="size-3.5" />
                                         Clear Filters
@@ -675,7 +639,7 @@ export function ModelDetailsDialog({
                                         WARRANTY CARDS
                                     ================================================= */}
 
-                                    <div className="space-y-2">
+                                    <div className="space-y-1">
                                         {paginatedWarranties.map(
                                             (warranty) => (
                                                 <button
@@ -688,23 +652,23 @@ export function ModelDetailsDialog({
                                                             warranty.warrantyTypeCode
                                                         )
                                                     }
-                                                    className="flex w-full items-center justify-between gap-3 rounded-xl border border-border/70 bg-card/80 p-4 text-left shadow-sm backdrop-blur transition-colors hover:bg-muted/40"
+                                                    className="group flex w-full min-w-0 items-center justify-between gap-2 rounded-lg bg-muted/25 px-3 py-2 text-left transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
                                                 >
-                                                    <div className="flex min-w-0 items-center gap-3">
+                                                    <div className="flex min-w-0 items-center gap-2.5">
                                                         {warranty.isActive ? (
-                                                            <ShieldCheck className="size-5 shrink-0 text-emerald-500" />
+                                                            <ShieldCheck className="size-4 shrink-0 text-emerald-500" />
                                                         ) : (
-                                                            <ShieldX className="size-5 shrink-0 text-muted-foreground" />
+                                                            <ShieldX className="size-4 shrink-0 text-muted-foreground" />
                                                         )}
 
                                                         <div className="min-w-0">
-                                                            <p className="truncate font-medium">
+                                                            <p className="truncate text-xs font-normal">
                                                                 {
                                                                     warranty.warrantyTypeName
                                                                 }
                                                             </p>
 
-                                                            <p className="text-sm text-muted-foreground">
+                                                            <p className="truncate text-[11px] font-normal text-muted-foreground">
                                                                 {
                                                                     warranty.warrantyTypeCode
                                                                 }
@@ -717,7 +681,7 @@ export function ModelDetailsDialog({
                                                                 }
                                                             </p>
 
-                                                            <p className="mt-0.5 text-xs text-muted-foreground">
+                                                            <p className="text-[11px] font-normal text-muted-foreground">
                                                                 {ruleTypeLabels[
                                                                     warranty
                                                                         .ruleType
@@ -727,7 +691,7 @@ export function ModelDetailsDialog({
                                                         </div>
                                                     </div>
 
-                                                    <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
+                                                    <ArrowRight className="size-3.5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" />
                                                 </button>
                                             )
                                         )}
@@ -737,22 +701,25 @@ export function ModelDetailsDialog({
                                         PAGINATION
                                     ================================================= */}
 
-                                    <div className="border-t pt-4">
+                                    {filteredWarranties.length > pageSize && <div className="pt-1">
                                         <MachinePagination
                                             page={currentPage}
                                             pageSize={pageSize}
                                             totalItems={
                                                 filteredWarranties.length
                                             }
+                                            itemLabel="warranties"
+                                            compact
                                             onPageChange={setPage}
                                             onPageSizeChange={
                                                 handlePageSizeChange
                                             }
                                         />
-                                    </div>
+                                    </div>}
                                 </>
                             )}
                         </section>
+                        <ModelAccessoryList modelCode={model.modelCode} enabled={open} compact />
                     </>
                 )}
             </DialogContent>
@@ -785,29 +752,31 @@ function WarrantyView({
 }: WarrantyViewProps) {
     return (
         <>
-            <DialogHeader>
+            <DialogHeader className="gap-1.5 border-b border-border/60 pb-2">
                 <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     onClick={onBack}
-                    className="-ml-2 h-auto w-fit gap-1.5 px-2 py-1 text-muted-foreground"
+                    className="-ml-2 h-auto w-fit gap-1 px-2 py-1 text-xs font-normal text-muted-foreground"
                 >
-                    <ArrowLeft className="size-4" />
+                    <ArrowLeft className="size-3.5" />
                     Back to {model.modelName}
                 </Button>
 
-                <div className="flex items-start justify-between gap-3 pr-6">
+                <div className="flex items-start gap-2 pr-6">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><ShieldCheck className="size-[15px]" /></span>
                     <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                             <Badge
                                 variant="outline"
-                                className="font-mono text-[11px]"
+                                className="h-4.5 px-1.5 py-0 text-[11px] font-normal"
                             >
                                 {warranty.warrantyTypeCode}
                             </Badge>
 
                             <Badge
+                                className="h-4.5 px-1.5 py-0 text-[10px] font-normal"
                                 variant={
                                     warranty.isActive
                                         ? "secondary"
@@ -820,11 +789,11 @@ function WarrantyView({
                             </Badge>
                         </div>
 
-                        <DialogTitle className="mt-1.5 text-xl">
+                        <DialogTitle className="mt-0.5 text-[13px] font-normal">
                             {warranty.warrantyTypeName}
                         </DialogTitle>
 
-                        <DialogDescription className="mt-1">
+                        <DialogDescription className="mt-0.5 text-[11px] font-normal">
                             {machine.machineName}
                             {" · "}
                             {model.modelName}
@@ -834,50 +803,46 @@ function WarrantyView({
                         </DialogDescription>
                     </div>
 
-                    {warranty.isActive ? (
-                        <ShieldCheck className="size-8 shrink-0 text-emerald-500" />
-                    ) : (
-                        <ShieldX className="size-8 shrink-0 text-muted-foreground" />
-                    )}
                 </div>
             </DialogHeader>
             {warranty.description && (
-                <p className="text-sm text-muted-foreground">
+                <p className="rounded-lg bg-muted/35 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
                     {warranty.description}
                 </p>
             )}
 
-            <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-xl bg-muted/40 p-3">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">
+            <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
+                    <p className="min-w-28 text-[11px] font-normal text-muted-foreground">
                         Warranty Period
                     </p>
 
-                    <p className="mt-1 flex items-center gap-2 font-medium">
+                    <p className="flex items-center gap-2 text-xs font-normal">
                         <Clock className="size-4 text-primary" />
 
                         {warranty.warrantyPeriod}{" "}
                         {warranty.warrantyPeriodUnit}
                     </p>
                 </div>
-                <div className="rounded-xl bg-muted/40 p-3">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
+                    <p className="min-w-28 text-[11px] font-normal text-muted-foreground">
                         Rule Type
                     </p>
 
-                    <p className="mt-1 font-medium">
+                    <p className="flex items-center gap-2 text-xs font-normal">
+                        <ShieldCheck className="size-4 text-primary" />
                         {ruleTypeLabels[warranty.ruleType] ??
                             warranty.ruleType}
                     </p>
                 </div>
 
                 {warranty.warrantyCopyLimit != null && (
-                    <div className="rounded-xl bg-muted/40 p-3">
-                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
+                        <p className="min-w-28 text-[11px] font-normal text-muted-foreground">
                             Copy Limit
                         </p>
 
-                        <p className="mt-1 flex items-center gap-2 font-medium">
+                        <p className="flex items-center gap-2 text-xs font-normal">
                             <Copy className="size-4 text-primary" />
 
                             {warranty.warrantyCopyLimit.toLocaleString()}{" "}
@@ -887,12 +852,12 @@ function WarrantyView({
                 )}
 
                 {warranty.warrantyHourLimit != null && (
-                    <div className="rounded-xl bg-muted/40 p-3">
-                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
+                        <p className="min-w-28 text-[11px] font-normal text-muted-foreground">
                             Hour Limit
                         </p>
 
-                        <p className="mt-1 flex items-center gap-2 font-medium">
+                        <p className="flex items-center gap-2 text-xs font-normal">
                             <Gauge className="size-4 text-primary" />
 
                             {warranty.warrantyHourLimit.toLocaleString()}{" "}
@@ -901,12 +866,12 @@ function WarrantyView({
                     </div>
                 )}
 
-                <div className="rounded-xl bg-muted/40 p-3">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
+                    <p className="min-w-28 text-[11px] font-normal text-muted-foreground">
                         Registered
                     </p>
 
-                    <p className="mt-1 flex items-center gap-2 font-medium">
+                    <p className="flex items-center gap-2 text-xs font-normal">
                         <CalendarDays className="size-4 text-primary" />
 
                         {formatDate(warranty.createdAt)}

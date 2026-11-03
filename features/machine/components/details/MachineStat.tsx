@@ -10,12 +10,12 @@ export function MachineStat({
     value,
 }: MachineStatProps) {
     return (
-        <div className="rounded-lg border bg-muted/30 p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <div className="rounded-lg border bg-muted/30 px-3 py-2.5">
+            <p className="text-[11px] font-normal uppercase tracking-wide text-muted-foreground">
                 {label}
             </p>
 
-            <div className="mt-2 text-lg font-semibold break-words">
+            <div className="mt-0.5 text-[13px] font-normal break-words">
                 {value}
             </div>
         </div>

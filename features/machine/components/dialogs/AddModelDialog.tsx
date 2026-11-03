@@ -151,7 +151,7 @@ export function AddModelDialog({
                 if (!next) reset();
             }}
         >
-            <DialogTrigger render={<Button size="sm" type="button" />}>
+            <DialogTrigger render={<Button size="sm" type="button" className="text-xs font-normal" />}>
                 <Plus className="size-4" />
                 Add Model
             </DialogTrigger>
@@ -171,7 +171,7 @@ export function AddModelDialog({
                     onSubmit={handleSubmit(onSubmit, onInvalid)}
                 >
                     <div className="space-y-1.5">
-                        <label className="text-sm font-medium" htmlFor="modelName">
+                        <label className="text-xs font-normal" htmlFor="modelName">
                             Model Name
                         </label>
                         <Input
@@ -192,7 +192,7 @@ export function AddModelDialog({
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-sm font-medium" htmlFor="description">
+                        <label className="text-xs font-normal" htmlFor="description">
                             Description{" "}
                             <span className="font-normal text-muted-foreground">
                                 (optional)
@@ -208,7 +208,7 @@ export function AddModelDialog({
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                            <label className="text-sm font-medium">Color Type</label>
+                            <label className="text-xs font-normal">Color Type</label>
                             <ModelSelectField
                                 control={control}
                                 name="colorType"
@@ -226,7 +226,7 @@ export function AddModelDialog({
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-sm font-medium">Network Type</label>
+                            <label className="text-xs font-normal">Network Type</label>
                             <ModelSelectField
                                 control={control}
                                 name="networkType"

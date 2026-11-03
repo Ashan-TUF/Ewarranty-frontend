@@ -10,7 +10,6 @@ import {
     Card,
     CardContent,
     CardDescription,
-    CardHeader,
     CardTitle,
 } from "@/components/ui/card";
 import { apiUrl } from "@/lib/api-url";
@@ -25,6 +24,10 @@ import {
     type MachineFilterValues,
 } from "@/features/machine/components";
 import { useMachines } from "@/features/machine/hooks";
+
+function MachineKpi({ label, value, detail, icon }: { label: string; value: number; detail: string; icon: React.ReactNode }) {
+    return <Card size="sm" className="border border-border/70 shadow-none"><CardContent className="space-y-2"><div className="flex items-start justify-between gap-2"><CardDescription className="text-[11px] font-normal">{label}</CardDescription><span className="flex size-7 items-center justify-center rounded-lg bg-muted text-primary [&_svg]:size-3.5">{icon}</span></div><CardTitle className="text-[24px] leading-none font-normal tabular-nums">{value.toLocaleString()}</CardTitle><p className="text-[11px] text-muted-foreground">{detail}</p></CardContent></Card>;
+}
 
 export default function MachineListPage() {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -368,74 +371,10 @@ export default function MachineListPage() {
 
             <main className="space-y-6 p-4 sm:p-6">
 
-                <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-
-                    <Card className="overflow-hidden border-border/70 bg-gradient-to-br from-card via-card to-sky-500/10 shadow-sm">
-                        <CardHeader className="relative pb-2">
-                            <span className="pointer-events-none absolute -right-7 -top-7 size-16 rounded-full bg-sky-400/15 blur-xl" />
-                            <div className="flex items-center justify-between gap-3">
-                                <CardDescription className="text-xs font-medium uppercase tracking-wide">
-                                    Total Machines
-                                </CardDescription>
-                                <span className="inline-flex size-8 items-center justify-center rounded-full bg-sky-500/15 text-sky-600 dark:text-sky-300">
-                                    <Boxes className="size-4" />
-                                </span>
-                            </div>
-
-                            <CardTitle className="mt-2 text-3xl">
-                                {totalCount}
-                            </CardTitle>
-                        </CardHeader>
-
-                        <CardContent className="text-sm text-muted-foreground">
-                            Registered machines.
-                        </CardContent>
-                    </Card>
-
-                    <Card className="overflow-hidden border-border/70 bg-gradient-to-br from-card via-card to-emerald-500/10 shadow-sm">
-                        <CardHeader className="relative pb-2">
-                            <span className="pointer-events-none absolute -right-7 -top-7 size-16 rounded-full bg-emerald-400/15 blur-xl" />
-                            <div className="flex items-center justify-between gap-3">
-                                <CardDescription className="text-xs font-medium uppercase tracking-wide">
-                                    Active Machines
-                                </CardDescription>
-                                <span className="inline-flex size-8 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-300">
-                                    <Sparkles className="size-4" />
-                                </span>
-                            </div>
-
-                            <CardTitle className="mt-2 text-3xl">
-                                {activeCount}
-                            </CardTitle>
-                        </CardHeader>
-
-                        <CardContent className="text-sm text-muted-foreground">
-                            Currently active.
-                        </CardContent>
-                    </Card>
-
-                    <Card className="overflow-hidden border-border/70 bg-gradient-to-br from-card via-card to-violet-500/10 shadow-sm">
-                        <CardHeader className="relative pb-2">
-                            <span className="pointer-events-none absolute -right-7 -top-7 size-16 rounded-full bg-violet-400/15 blur-xl" />
-                            <div className="flex items-center justify-between gap-3">
-                                <CardDescription className="text-xs font-medium uppercase tracking-wide">
-                                    Categories
-                                </CardDescription>
-                                <span className="inline-flex size-8 items-center justify-center rounded-full bg-violet-500/15 text-violet-600 dark:text-violet-300">
-                                    <Layers3 className="size-4" />
-                                </span>
-                            </div>
-
-                            <CardTitle className="mt-2 text-3xl">
-                                {categoryCount}
-                            </CardTitle>
-                        </CardHeader>
-
-                        <CardContent className="text-sm text-muted-foreground">
-                            Registered categories.
-                        </CardContent>
-                    </Card>
-
+                <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                    <MachineKpi label="Total Machines" value={totalCount} detail="Registered inventory" icon={<Boxes />} />
+                    <MachineKpi label="Active Machines" value={activeCount} detail="Currently active" icon={<Sparkles />} />
+                    <MachineKpi label="Categories" value={categoryCount} detail="Machine categories" icon={<Layers3 />} />
                 </section>
 
                 <section className="space-y-4">
@@ -447,7 +386,7 @@ export default function MachineListPage() {
 
                     {paginatedMachines.length > 0 ? (
 
-                        <div className="grid gap-5 lg:grid-cols-2">
+                        <div className="grid grid-cols-1 items-stretch gap-3 md:grid-cols-2 xl:grid-cols-3">
 
                             {paginatedMachines.map((machine) => (
                                 <MachineCard

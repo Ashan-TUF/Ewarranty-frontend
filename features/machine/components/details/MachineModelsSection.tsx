@@ -29,6 +29,7 @@ interface MachineModelsSectionProps {
 
     onViewDetails?: (model: MachineModelResponse) => void;
     onAddWarranty?: (model: MachineModelResponse) => void;
+    onAddAccessory?: (model: MachineModelResponse) => void;
 }
 
 export function MachineModelsSection({
@@ -47,19 +48,20 @@ export function MachineModelsSection({
 
     onViewDetails,
     onAddWarranty,
+    onAddAccessory,
 }: MachineModelsSectionProps) {
     return (
-        <section className="space-y-4">
+        <section className="space-y-3">
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
 
                 <div>
 
-                    <h2 className="text-sm font-semibold">
+                    <h2 className="text-[13px] font-normal">
                         Models
                     </h2>
 
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[11px] font-normal text-muted-foreground">
 
                         {keyword
                             ? `${filteredModelsCount} of ${totalModels} models`
@@ -76,7 +78,7 @@ export function MachineModelsSection({
                     <Input
                         value={keyword}
                         placeholder="Search models..."
-                        className="pl-8"
+                        className="pl-8 text-xs font-normal placeholder:text-xs"
                         onChange={(event) =>
                             onKeywordChange(
                                 event.target.value
@@ -93,7 +95,7 @@ export function MachineModelsSection({
                 />
             ) : (
                 <>
-                    <div className="grid gap-4 lg:grid-cols-2">
+                    <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
                         {models.map((model) => (
                             <ModelSummaryCard
                                 key={model.modelCode}
@@ -105,6 +107,7 @@ export function MachineModelsSection({
                                 onAddWarranty={
                                     onAddWarranty
                                 }
+                                onAddAccessory={onAddAccessory}
                             />
                         ))}
                     </div>

@@ -6,6 +6,7 @@ export const ROUTES = {
   DASHBOARD: "/dashboard",
 
   MACHINES: "/machines",
+  ACCESSORIES: "/accessories",
   MACHINE_CREATE: "/machines/create",
   MACHINE_DETAILS: (machineCode: string) => `/machines/${machineCode}`,
   MACHINE_MODEL_DETAILS: (machineCode: string, modelCode: string) =>

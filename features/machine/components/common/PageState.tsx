@@ -26,23 +26,23 @@ export function PageState({
     className,
 }: PageStateProps) {
     return (
-        <div className={cn("rounded-xl border border-dashed py-12 text-center sm:py-16", className)}>
+        <div className={cn("rounded-xl border border-dashed px-4 py-8 text-center sm:py-10", className)}>
             {icon ? (
-                <div className="mb-3 flex justify-center text-muted-foreground">
+                <div className="mb-2 flex justify-center text-muted-foreground">
                     {icon}
                 </div>
             ) : null}
 
-            <p className="font-medium">{title}</p>
+            <p className="text-sm font-normal">{title}</p>
 
             {description ? (
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-xs text-muted-foreground">
                     {description}
                 </p>
             ) : null}
 
             {actionLabel ? (
-                <div className="mt-4">
+                <div className="mt-3">
                     {actionHref ? (
                         <Link href={actionHref}>
                             <Button type="button" variant="outline" size="sm">

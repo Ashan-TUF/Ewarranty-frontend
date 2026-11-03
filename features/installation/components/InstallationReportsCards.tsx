@@ -109,7 +109,7 @@ export function InstallationReportsCards({
                         <div className="rounded-xl bg-muted/35 p-3 text-sm">
                             <p className="font-medium text-foreground">Machine</p>
                             <p className="mt-0.5 text-muted-foreground">
-                                {report.machineModel} · {report.machineDescription || "-"}
+                                {report.machineModel} Â· {report.machineDescription || "-"}
                             </p>
 
                             <p className="mt-2 text-xs text-muted-foreground">
@@ -120,7 +120,7 @@ export function InstallationReportsCards({
                         <div className="flex items-center justify-between gap-3">
                             <div className="min-w-0">
                                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Invoice Number</p>
-                                <p className="truncate text-sm font-semibold">
+                                <p className="truncate text-[13px] font-normal">
                                     {report.invoiceNumber?.trim() ? report.invoiceNumber : "Not assigned"}
                                 </p>
                             </div>

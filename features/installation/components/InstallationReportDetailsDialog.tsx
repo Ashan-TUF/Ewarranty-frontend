@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, FileSearch, Pencil, Save, X } from "lucide-react";
+import { ArrowLeft, CalendarDays, CheckCircle2, FileSearch, FileText, Hash, Mail, MapPin, Pencil, Phone, Printer, Save, UserRound, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -75,25 +75,29 @@ function DetailsSection({
     items: DetailItem[];
 }) {
     return (
-        <section className="rounded-xl border border-border/70 bg-card/70 p-4">
-            <h3 className="font-heading text-base font-medium">{title}</h3>
-            <dl className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <section className="space-y-2 border-t border-border/60 pt-3 first:border-t-0 first:pt-0">
+            <h3 className="text-xs font-medium text-foreground">{title}</h3>
+            <div className="grid gap-x-5 gap-y-3 sm:grid-cols-2">
                 {items.map((item) => (
-                    <div
-                        key={item.label}
-                        className="rounded-lg border border-border/70 bg-background/50 p-3"
-                    >
-                        <dt className="text-xs font-medium uppercase text-muted-foreground">
-                            {item.label}
-                        </dt>
-                        <dd className="mt-1 break-words text-sm font-medium">
-                            {formatValue(item.value)}
-                        </dd>
+                    <div key={item.label} className="min-w-0">
+                        <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground [&_svg]:size-3.5 [&_svg]:text-primary">{detailIcon(item.label)}{item.label}</p>
+                        <p className="mt-0.5 break-words pl-5 text-xs leading-relaxed text-foreground">{formatValue(item.value)}</p>
                     </div>
                 ))}
-            </dl>
+            </div>
         </section>
     );
+}
+
+function detailIcon(label: string) {
+    if (/date|created|updated/i.test(label)) return <CalendarDays />;
+    if (/phone|fax/i.test(label)) return <Phone />;
+    if (/email/i.test(label)) return <Mail />;
+    if (/city|address|street|floor|building|area|department/i.test(label)) return <MapPin />;
+    if (/machine|serial|model/i.test(label)) return <Printer />;
+    if (/customer|contact|engineer|executive|installed by/i.test(label)) return <UserRound />;
+    if (/number|code|counter|id/i.test(label)) return <Hash />;
+    return <FileText />;
 }
 
 function buildSections(report: InstallationReport) {
@@ -226,12 +230,16 @@ export function InstallationReportDetailsDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-h-[88vh] overflow-y-auto sm:max-w-5xl">
-                <DialogHeader>
-                    <DialogTitle>Installation Report Details</DialogTitle>
-                    <DialogDescription>
-                        Full installation report details for ID {reportId ?? "-"}.
-                    </DialogDescription>
+            <DialogContent className="max-h-[85vh] gap-4 overflow-x-hidden overflow-y-auto sm:max-w-[800px]">
+                <DialogHeader className="gap-2 border-b border-border/60 pb-3">
+                    <Button type="button" variant="ghost" size="sm" className="-ml-2 h-auto w-fit gap-1 px-2 py-1 text-xs font-normal text-muted-foreground" onClick={() => onOpenChange(false)}>
+                        <ArrowLeft className="size-3.5" />Back to reports
+                    </Button>
+                    <div className="flex items-start gap-3 pr-6">
+                        <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><FileText className="size-4" /></span>
+                        <div><DialogTitle className="text-[15px] font-normal">Installation report</DialogTitle>
+                        <DialogDescription className="text-[11px] font-normal">Report #{reportId ?? "-"}</DialogDescription></div>
+                    </div>
                 </DialogHeader>
 
                 {isLoading && (
@@ -255,24 +263,24 @@ export function InstallationReportDetailsDialog({
 
                 {report && (
                     <div className="space-y-4">
-                        <section className="rounded-xl border border-border/70 bg-card/70 p-4">
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <section className="space-y-2">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                 <div>
-                                    <h3 className="font-heading text-lg font-semibold">
+                                    <h3 className="font-heading text-sm font-normal">
                                         {report.customerName}
                                     </h3>
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-[11px] font-normal text-muted-foreground">
                                         {report.machineModel} - {formatValue(report.serialNumber)}
                                     </p>
                                 </div>
 
-                                <span className="inline-flex w-fit items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                                <span className="inline-flex w-fit items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-normal text-muted-foreground">
                                     <CheckCircle2 className="size-3.5" />
                                     {report.installationStatus}
                                 </span>
                             </div>
 
-                            <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
+                            <div className="grid gap-2 border-y border-border/70 py-2 text-xs sm:grid-cols-2">
                                 <div>
                                     <p className="text-xs leading-none text-muted-foreground">Invoice Number</p>
 
@@ -310,7 +318,7 @@ export function InstallationReportDetailsDialog({
                                         </div>
                                     ) : (
                                         <div className="mt-1.5 flex items-center gap-1.5">
-                                            <p className="font-medium">{formatValue(report.invoiceNumber)}</p>
+                                            <p className="font-normal">{formatValue(report.invoiceNumber)}</p>
                                             <Button
                                                 type="button"
                                                 variant="ghost"
@@ -328,15 +336,15 @@ export function InstallationReportDetailsDialog({
                                 </div>
                                 <div>
                                     <p className="text-xs text-muted-foreground">Installation Date</p>
-                                    <p className="font-medium">{formatValue(report.installationDate)}</p>
+                                    <p className="font-normal">{formatValue(report.installationDate)}</p>
                                 </div>
                                 <div>
                                     <p className="text-xs text-muted-foreground">Installed By</p>
-                                    <p className="font-medium">{formatValue(report.installedBy)}</p>
+                                    <p className="font-normal">{formatValue(report.installedBy)}</p>
                                 </div>
                                 <div>
                                     <p className="text-xs text-muted-foreground">City</p>
-                                    <p className="font-medium">{formatValue(report.city)}</p>
+                                    <p className="font-normal">{formatValue(report.city)}</p>
                                 </div>
                             </div>
                         </section>

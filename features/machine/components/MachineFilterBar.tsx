@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ListFilter, RotateCcw, Search, X } from "lucide-react";
+import { ChevronDown, ListFilter, RotateCcw, Search, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -80,13 +80,14 @@ export function MachineFilterBar({ values, onChange }: MachineFilterBarProps) {
     }
 
     return (
-        <div className="space-y-3">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <div className="relative flex-1">
+        <div className="space-y-2.5">
+            <div className="flex flex-wrap gap-2 sm:items-center">
+                <div className="relative w-full min-w-0 sm:max-w-[380px] sm:flex-1">
                     <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         placeholder="Search by machine name, manufacturer, or code..."
-                        className="pl-8"
+                        aria-label="Search machines"
+                        className="h-9 pl-8 text-xs font-normal"
                         value={draft.keyword}
                         onChange={(e) => handleKeywordChange(e.target.value)}
                     />
@@ -97,15 +98,18 @@ export function MachineFilterBar({ values, onChange }: MachineFilterBarProps) {
                     variant="outline"
                     size="sm"
                     onClick={() => setIsExpanded((prev) => !prev)}
-                    className="shrink-0"
+                    className="h-9 shrink-0 px-2.5 text-xs font-normal"
+                    aria-expanded={isExpanded}
+                    aria-controls="machine-advanced-filters"
                 >
                     <ListFilter className="size-4" />
                     Filters
                     {activeAdvancedCount > 0 && (
-                        <Badge className="ml-1 h-4.5 px-1.5" variant="secondary">
+                        <Badge className="ml-1 h-4 px-1 text-[10px] font-normal" variant="secondary">
                             {activeAdvancedCount}
                         </Badge>
                     )}
+                    <ChevronDown className={cn("size-3.5 transition-transform duration-200 motion-reduce:transition-none", isExpanded && "rotate-180")} />
                 </Button>
 
                 {(values.keyword || activeAdvancedCount > 0) && (
@@ -114,7 +118,7 @@ export function MachineFilterBar({ values, onChange }: MachineFilterBarProps) {
                         variant="ghost"
                         size="sm"
                         onClick={resetFilters}
-                        className="shrink-0 text-muted-foreground"
+                        className="h-9 shrink-0 text-xs font-normal text-muted-foreground"
                     >
                         <RotateCcw className="size-3.5" />
                         Reset
@@ -123,16 +127,19 @@ export function MachineFilterBar({ values, onChange }: MachineFilterBarProps) {
             </div>
 
             <div
+                id="machine-advanced-filters"
+                aria-hidden={!isExpanded}
+                inert={!isExpanded}
                 className={cn(
-                    "grid overflow-hidden transition-all duration-200 ease-out",
+                    "grid transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none",
                     isExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                 )}
             >
-                <div className="min-h-0">
-                    <div className="rounded-xl border bg-card/50 p-4">
-                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="min-h-0 overflow-hidden">
+                    <div className="rounded-xl border border-border/70 bg-card p-3">
+                        <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
                             <div className="space-y-1.5">
-                                <label className="text-xs font-medium text-muted-foreground">
+                                <label className="text-xs font-normal text-muted-foreground">
                                     Machine Code
                                 </label>
                                 <Input
@@ -143,7 +150,7 @@ export function MachineFilterBar({ values, onChange }: MachineFilterBarProps) {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-medium text-muted-foreground">
+                                <label className="text-xs font-normal text-muted-foreground">
                                     Model Code
                                 </label>
                                 <Input
@@ -154,7 +161,7 @@ export function MachineFilterBar({ values, onChange }: MachineFilterBarProps) {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-medium text-muted-foreground">
+                                <label className="text-xs font-normal text-muted-foreground">
                                     Warranty Type Code
                                 </label>
                                 <Input
@@ -167,7 +174,7 @@ export function MachineFilterBar({ values, onChange }: MachineFilterBarProps) {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-medium text-muted-foreground">
+                                <label className="text-xs font-normal text-muted-foreground">
                                     Warranty Period
                                 </label>
                                 <Input
@@ -182,7 +189,7 @@ export function MachineFilterBar({ values, onChange }: MachineFilterBarProps) {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-medium text-muted-foreground">
+                                <label className="text-xs font-normal text-muted-foreground">
                                     Warranty Period Unit
                                 </label>
                                 <Select
@@ -203,7 +210,7 @@ export function MachineFilterBar({ values, onChange }: MachineFilterBarProps) {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-medium text-muted-foreground">
+                                <label className="text-xs font-normal text-muted-foreground">
                                     Rule Type
                                 </label>
                                 <Select
