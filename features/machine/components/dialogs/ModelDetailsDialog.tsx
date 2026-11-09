@@ -370,15 +370,17 @@ export function ModelDetailsDialog({
                         <DialogHeader className="sticky top-0 z-10 -mx-4 -mt-4 gap-1 border-b border-border/60 bg-popover px-4 pt-4 pb-3">
                             <div className="flex items-start justify-between gap-3 pr-6">
                                 <div className="min-w-0 space-y-1">
-                                    <Badge
-                                        variant="outline"
-                                        className="font-mono text-xs font-normal"
-                                    >
-                                        {model.modelCode}
-                                    </Badge>
-                                    <Badge variant={model.isActive ? "secondary" : "destructive"} className="text-[11px] font-normal">
-                                        {model.isActive ? "Active" : "Inactive"}
-                                    </Badge>
+                                    <div className="flex flex-wrap items-center gap-1.5">
+                                        <Badge
+                                            variant="outline"
+                                            className="px-1.5 py-0.5 text-[10px] font-normal leading-[14px] tracking-normal"
+                                        >
+                                            {model.modelCode}
+                                        </Badge>
+                                        <Badge variant={model.isActive ? "secondary" : "destructive"} className="text-[11px] font-normal">
+                                            {model.isActive ? "Active" : "Inactive"}
+                                        </Badge>
+                                    </div>
 
                                     <DialogTitle className="text-[15px] font-normal">
                                         {model.modelName}
@@ -639,7 +641,7 @@ export function ModelDetailsDialog({
                                         WARRANTY CARDS
                                     ================================================= */}
 
-                                    <div className="space-y-1">
+                                    <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),300px))] items-start gap-3">
                                         {paginatedWarranties.map(
                                             (warranty) => (
                                                 <button
@@ -652,23 +654,23 @@ export function ModelDetailsDialog({
                                                             warranty.warrantyTypeCode
                                                         )
                                                     }
-                                                    className="group flex w-full min-w-0 items-center justify-between gap-2 rounded-lg bg-muted/25 px-3 py-2 text-left transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
+                                                    className="group flex w-full max-w-[300px] min-w-0 items-center gap-2.5 rounded-lg border border-border/70 bg-background px-3 py-2 text-left transition-[background-color,border-color] duration-150 hover:border-border hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
                                                 >
-                                                    <div className="flex min-w-0 items-center gap-2.5">
+                                                    <div className="flex min-w-0 flex-1 items-center gap-2.5">
                                                         {warranty.isActive ? (
-                                                            <ShieldCheck className="size-4 shrink-0 text-emerald-500" />
+                                                            <ShieldCheck className="size-3.5 shrink-0 text-emerald-600" />
                                                         ) : (
-                                                            <ShieldX className="size-4 shrink-0 text-muted-foreground" />
+                                                            <ShieldX className="size-3.5 shrink-0 text-muted-foreground" />
                                                         )}
 
-                                                        <div className="min-w-0">
-                                                            <p className="truncate text-xs font-normal">
+                                                        <div className="min-w-0 flex-1 space-y-0.5">
+                                                            <p className="text-xs leading-4 font-normal">
                                                                 {
                                                                     warranty.warrantyTypeName
                                                                 }
                                                             </p>
 
-                                                            <p className="truncate text-[11px] font-normal text-muted-foreground">
+                                                            <p className="text-[11px] leading-4 font-normal text-muted-foreground">
                                                                 {
                                                                     warranty.warrantyTypeCode
                                                                 }
@@ -678,10 +680,7 @@ export function ModelDetailsDialog({
                                                                 }{" "}
                                                                 {
                                                                     warranty.warrantyPeriodUnit
-                                                                }
-                                                            </p>
-
-                                                            <p className="text-[11px] font-normal text-muted-foreground">
+                                                                }{" · "}
                                                                 {ruleTypeLabels[
                                                                     warranty
                                                                         .ruleType
@@ -691,7 +690,7 @@ export function ModelDetailsDialog({
                                                         </div>
                                                     </div>
 
-                                                    <ArrowRight className="size-3.5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" />
+                                                    <ArrowRight className="size-3.5 shrink-0 text-muted-foreground transition-transform duration-150 group-hover:translate-x-0.5 motion-reduce:transition-none" />
                                                 </button>
                                             )
                                         )}

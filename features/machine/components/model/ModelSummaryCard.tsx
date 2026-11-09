@@ -25,7 +25,7 @@ export function ModelSummaryCard({ machine, model, onViewDetails, onAddWarranty,
       <div className="flex min-w-0 items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className="font-mono text-xs font-normal">{model.modelCode}</Badge>
+            <Badge variant="outline" className="px-1.5 py-0.5 text-[10px] font-normal leading-[14px] tracking-normal">{model.modelCode}</Badge>
             {model.isActive ? <span className="inline-flex items-center gap-1 text-[11px] font-normal text-emerald-600 dark:text-emerald-400"><span className="size-2 rounded-full bg-emerald-500" aria-hidden="true" />Active</span> : <Badge variant="destructive" className="text-[11px] font-normal">Inactive</Badge>}
           </div>
           <CardTitle className="mt-1 truncate text-xs font-normal">{model.modelName}</CardTitle>

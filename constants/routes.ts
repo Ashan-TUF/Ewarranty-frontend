@@ -7,6 +7,8 @@ export const ROUTES = {
 
   MACHINES: "/machines",
   ACCESSORIES: "/accessories",
+  ACCESSORY_TYPES: "/accessory-types",
+  ACCESSORY_WARRANTIES: "/accessory-warranties",
   MACHINE_CREATE: "/machines/create",
   MACHINE_DETAILS: (machineCode: string) => `/machines/${machineCode}`,
   MACHINE_MODEL_DETAILS: (machineCode: string, modelCode: string) =>
@@ -23,3 +25,5 @@ export const ROUTES = {
     `/installations/confirm-installations/${id}`,
   SUBMIT_INSTALLATIONS: "/installations/submit-installations",
 } as const;
+
+

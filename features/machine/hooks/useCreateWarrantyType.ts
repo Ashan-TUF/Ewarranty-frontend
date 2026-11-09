@@ -12,9 +12,10 @@ export function useCreateWarrantyType() {
         mutationFn: createWarrantyType,
 
         onSuccess: async () => {
-            await queryClient.invalidateQueries({
-                queryKey: ["warranty-types"],
-            });
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ["warranty-types"] }),
+                queryClient.invalidateQueries({ queryKey: ["accessory-warranty-types"] }),
+            ]);
         },
     });
 }

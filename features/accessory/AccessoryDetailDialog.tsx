@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAccessory } from "./hooks";
 import { accessoryError } from "./service";
+import { AccessoryWarrantyAction } from "./AccessoryWarrantyAction";
 import type { AccessoryListItem } from "./types";
 
 interface Props {
@@ -39,6 +40,7 @@ export function AccessoryDetailDialog({ item, onOpenChange }: Props) {
         : detail.isError ? <p className="py-3 text-xs text-destructive">{accessoryError(detail.error)}</p>
         : accessory && <div className="space-y-4">
           <div className="rounded-xl bg-muted/40 px-3 py-2.5">
+            <p className="text-[11px] text-muted-foreground">Accessory Type</p><p className="text-xs">{accessory.accessoryTypeName} · {accessory.accessoryTypeCode}</p>
             <p className="text-[11px] text-muted-foreground">Description</p>
             <p className="mt-1 text-xs leading-relaxed text-foreground">{accessory.description || "No description provided."}</p>
           </div>
@@ -47,6 +49,7 @@ export function AccessoryDetailDialog({ item, onOpenChange }: Props) {
             <div><p className="flex items-center gap-1.5 text-[11px] text-muted-foreground"><CalendarDays className="size-3.5 text-primary" /> Registered</p><p className="mt-1 text-xs">{date(accessory.createdAt)}</p></div>
             {accessory.updatedAt && <div><p className="flex items-center gap-1.5 text-[11px] text-muted-foreground"><CalendarDays className="size-3.5 text-primary" /> Updated</p><p className="mt-1 text-xs">{date(accessory.updatedAt)}</p></div>}
           </div>
+          <div className="border-t pt-3"><p className="text-[11px] text-muted-foreground">Warranty</p><AccessoryWarrantyAction accessory={accessory} /></div>
         </div>}
     </DialogContent>
   </Dialog>;
