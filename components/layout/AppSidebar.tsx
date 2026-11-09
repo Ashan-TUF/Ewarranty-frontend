@@ -6,9 +6,9 @@ import {
     LayoutDashboard,
     Cpu,
     Package,
+    Tags,
     ShieldCheck,
     Wrench,
-    Users,
     ClipboardCheck,
     ClipboardList,
     FileBarChart2,
@@ -41,6 +41,16 @@ const items = [
         title: "Accessories",
         url: ROUTES.ACCESSORIES,
         icon: Package,
+    },
+    {
+        title: "Accessory Warranties",
+        url: ROUTES.ACCESSORY_WARRANTIES,
+        icon: ShieldCheck,
+    },
+    {
+        title: "Accessory Types",
+        url: ROUTES.ACCESSORY_TYPES,
+        icon: Tags,
     },
 ];
 
@@ -124,3 +134,4 @@ export function AppSidebar() {
         </Sidebar>
     );
 }
+
