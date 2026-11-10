@@ -1,17 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { getMachines } from "../services";
+import { getMachines, getMachineStatistics, type MachineSearchRequest } from "../services/machine.service";
 
-export function useMachines() {
+export function useMachines(params: MachineSearchRequest = { page: 1, pageSize: 100 }) {
     return useQuery({
-        queryKey: ["machines"],
-
-        queryFn: () =>
-            getMachines({
-                page: 1,
-                pageSize: 100,
-            }),
+        queryKey: ["machines", params],
+        queryFn: () => getMachines(params),
     });
+}
+
+export function useMachineStatistics() {
+    return useQuery({ queryKey: ["machines", "statistics"], queryFn: getMachineStatistics });
 }
 
 export function useMachine(machineCode: string) {

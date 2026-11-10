@@ -11,8 +11,27 @@ import type {
 
 export interface MachineSearchRequest {
     machineCode?: string;
+    modelCode?: string;
+    warrantyTypeCode?: string;
+    warrantyPeriod?: number;
+    warrantyPeriodUnit?: string;
+    ruleType?: string;
+    keyword?: string;
+    sortBy?: string;
+    sortDirection?: "Asc" | "Desc";
     page?: number;
     pageSize?: number;
+}
+
+export interface MachineStatistics {
+    totalMachines: number;
+    activeMachines: number;
+    categories: number;
+}
+
+export async function getMachineStatistics(): Promise<MachineStatistics> {
+    const response = await axiosClient.get<ApiResponse<MachineStatistics>>(`${API.MACHINE}/statistics`);
+    return response.data.data;
 }
 
 export async function getMachines(
