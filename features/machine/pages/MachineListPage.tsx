@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useState } from "react";
 import { Boxes, Download, Layers3, Loader2, SearchX, Sparkles, Upload } from "lucide-react";
-import { toast } from "sonner";
 
 import AppHeader from "@/components/layout/AppHeader";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,9 @@ import {
     CardDescription,
     CardTitle,
 } from "@/components/ui/card";
-import { apiUrl } from "@/lib/api-url";
+import { MachineImportReportDialog } from "@/features/machine/components/MachineImportReportDialog";
+import { MachineImportSuccessDialog } from "@/features/machine/components/MachineImportSuccessDialog";
+import { useMachineImport } from "@/features/machine/hooks/useMachineImport";
 
 import {
     AddMachineDialog,
@@ -23,15 +24,13 @@ import {
     emptyFilters,
     type MachineFilterValues,
 } from "@/features/machine/components";
-import { useMachines } from "@/features/machine/hooks";
+import { useMachines, useMachineStatistics } from "@/features/machine/hooks/useMachine";
 
-function MachineKpi({ label, value, detail, icon }: { label: string; value: number; detail: string; icon: React.ReactNode }) {
-    return <Card size="sm" className="border border-border/70 shadow-none"><CardContent className="space-y-2"><div className="flex items-start justify-between gap-2"><CardDescription className="text-[11px] font-normal">{label}</CardDescription><span className="flex size-7 items-center justify-center rounded-lg bg-muted text-primary [&_svg]:size-3.5">{icon}</span></div><CardTitle className="text-[24px] leading-none font-normal tabular-nums">{value.toLocaleString()}</CardTitle><p className="text-[11px] text-muted-foreground">{detail}</p></CardContent></Card>;
+function MachineKpi({ label, value, detail, icon }: { label: string; value: number | null; detail: string; icon: React.ReactNode }) {
+    return <Card size="sm" className="border border-border/70 shadow-none"><CardContent className="space-y-2"><div className="flex items-start justify-between gap-2"><CardDescription className="text-[11px] font-normal">{label}</CardDescription><span className="flex size-7 items-center justify-center rounded-lg bg-muted text-primary [&_svg]:size-3.5">{icon}</span></div><CardTitle className="text-[24px] leading-none font-normal tabular-nums">{value?.toLocaleString() ?? "—"}</CardTitle><p className="text-[11px] text-muted-foreground">{detail}</p></CardContent></Card>;
 }
 
 export default function MachineListPage() {
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const [isUploading, setIsUploading] = useState(false);
 
     const [filters, setFilters] =
         useState<MachineFilterValues>(emptyFilters);
@@ -39,150 +38,26 @@ export default function MachineListPage() {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
 
-    const {
-        data,
-        isLoading,
-        isError,
-        refetch,
-    } = useMachines();
-
-    const machines = useMemo(
-        () => data?.items ?? [],
-        [data?.items]
-    );
-
-    /*
-     * Filter Machines
-     */
-    const filteredMachines = useMemo(() => {
-        const keyword = filters.keyword.trim().toLowerCase();
-        const machineCode = filters.machineCode.trim().toLowerCase();
-        const modelCode = filters.modelCode.trim().toLowerCase();
-        const warrantyTypeCode =
-            filters.warrantyTypeCode.trim().toLowerCase();
-        const warrantyPeriod = filters.warrantyPeriod.trim();
-
-        return machines.filter((machine) => {
-            if (
-                keyword &&
-                !`${machine.machineName} ${machine.manufacturer} ${machine.machineCode}`
-                    .toLowerCase()
-                    .includes(keyword)
-            ) {
-                return false;
-            }
-
-            if (
-                machineCode &&
-                !machine.machineCode
-                    .toLowerCase()
-                    .includes(machineCode)
-            ) {
-                return false;
-            }
-
-            if (
-                modelCode &&
-                !machine.models.some((model) =>
-                    model.modelCode
-                        .toLowerCase()
-                        .includes(modelCode)
-                )
-            ) {
-                return false;
-            }
-
-            const warranties =
-                machine.models.flatMap(
-                    (model) => model.warranties
-                );
-
-            if (
-                warrantyTypeCode &&
-                !warranties.some((warranty) =>
-                    warranty.warrantyTypeCode
-                        .toLowerCase()
-                        .includes(warrantyTypeCode)
-                )
-            ) {
-                return false;
-            }
-
-            if (
-                warrantyPeriod &&
-                !warranties.some(
-                    (warranty) =>
-                        String(
-                            warranty.warrantyPeriod
-                        ) === warrantyPeriod
-                )
-            ) {
-                return false;
-            }
-
-            if (
-                filters.warrantyPeriodUnit &&
-                !warranties.some(
-                    (warranty) =>
-                        warranty.warrantyPeriodUnit ===
-                        filters.warrantyPeriodUnit
-                )
-            ) {
-                return false;
-            }
-
-            if (
-                filters.ruleType &&
-                !warranties.some(
-                    (warranty) =>
-                        warranty.ruleType ===
-                        filters.ruleType
-                )
-            ) {
-                return false;
-            }
-
-            return true;
-        });
-    }, [machines, filters]);
-
-    /*
-     * Pagination
-     */
-    const totalItems = filteredMachines.length;
-
-    const totalPages = Math.max(
-        1,
-        Math.ceil(totalItems / pageSize)
-    );
-
-    const currentPage = Math.min(page, totalPages);
-
-    const paginatedMachines = useMemo(() => {
-        const start =
-            (currentPage - 1) * pageSize;
-
-        return filteredMachines.slice(
-            start,
-            start + pageSize
-        );
-    }, [
-        filteredMachines,
-        currentPage,
+    const searchParams = {
+        page,
         pageSize,
-    ]);
+        keyword: filters.keyword.trim() || undefined,
+        machineCode: filters.machineCode.trim() || undefined,
+        modelCode: filters.modelCode.trim() || undefined,
+        warrantyTypeCode: filters.warrantyTypeCode.trim() || undefined,
+        warrantyPeriod: filters.warrantyPeriod ? Number(filters.warrantyPeriod) : undefined,
+        warrantyPeriodUnit: filters.warrantyPeriodUnit || undefined,
+        ruleType: filters.ruleType || undefined,
+    };
+    const { data, isLoading, isError, isFetching } = useMachines(searchParams);
+    const { data: statistics } = useMachineStatistics();
+    const { fileInputRef, isUploading, report, successResult, closeReport, closeSuccess, pickFile, uploadFile } = useMachineImport();
 
-    /*
-     * Dashboard Summary
-     */
-    const totalCount = machines.length;
-
-    const activeCount =
-        machines.filter((m) => m.isActive).length;
-
-    const categoryCount = new Set(
-        machines.map((m) => m.category)
-    ).size;
+    const paginatedMachines = data?.items ?? [];
+    const totalItems = data?.totalCount ?? 0;
+    const totalCount = statistics?.totalMachines ?? data?.totalCount ?? null;
+    const activeCount = statistics?.activeMachines ?? null;
+    const categoryCount = statistics?.categories ?? null;
 
     /*
      * Handlers
@@ -211,84 +86,7 @@ export default function MachineListPage() {
     }
 
     function handlePickFile() {
-        if (isUploading) {
-            return;
-        }
-
-        fileInputRef.current?.click();
-    }
-
-    async function handleUploadFile(event: React.ChangeEvent<HTMLInputElement>) {
-        const file = event.target.files?.[0];
-
-        if (!file) {
-            return;
-        }
-
-        const isExcelFile =
-            file.name.toLowerCase().endsWith(".xlsx") ||
-            file.name.toLowerCase().endsWith(".xls");
-
-        if (!isExcelFile) {
-            toast.error("Please select an Excel file (.xlsx or .xls).");
-            event.target.value = "";
-            return;
-        }
-
-        setIsUploading(true);
-
-        try {
-            const formData = new FormData();
-            formData.append("file", file);
-
-            const response = await fetch(apiUrl("/machine-imports"), {
-                method: "POST",
-                body: formData,
-            });
-
-            const responseText = await response.text();
-            let payload: {
-                success?: boolean;
-                message?: string;
-                data?: {
-                    errors?: string[];
-                };
-            } | null = null;
-
-            try {
-                payload = responseText ? JSON.parse(responseText) : null;
-            } catch {
-                // Keep the raw response for servers that return non-JSON errors.
-            }
-
-            if (!response.ok) {
-                const message =
-                    payload?.message ||
-                    responseText ||
-                    `Machine bulk upload failed (HTTP ${response.status}).`;
-
-                throw new Error(message);
-            }
-
-            const importErrors = payload?.data?.errors?.filter(Boolean) ?? [];
-
-            await refetch();
-
-            if (importErrors.length > 0) {
-                toast.success(payload?.message || "Machine bulk upload completed successfully.");
-                toast.error(
-                    `Import completed with ${importErrors.length} row error(s): ${importErrors.join(" | ")}`
-                );
-                return;
-            }
-
-            toast.success(payload?.message || "Machine bulk upload completed successfully.");
-        } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Machine bulk upload failed.");
-        } finally {
-            setIsUploading(false);
-            event.target.value = "";
-        }
+        pickFile();
     }
 
     /*
@@ -337,7 +135,7 @@ export default function MachineListPage() {
                             type="file"
                             accept=".xlsx,.xls"
                             className="hidden"
-                            onChange={handleUploadFile}
+                            onChange={uploadFile}
                         />
 
                         <Button
@@ -384,7 +182,7 @@ export default function MachineListPage() {
                         onChange={handleFilterChange}
                     />
 
-                    {paginatedMachines.length > 0 ? (
+                    {isFetching ? <PageState title="Loading machines..." description="Fetching matching machines." /> : paginatedMachines.length > 0 ? (
 
                         <div className="grid grid-cols-1 items-stretch gap-3 md:grid-cols-2 xl:grid-cols-3">
 
@@ -410,7 +208,7 @@ export default function MachineListPage() {
                     {totalItems > 0 && (
 
                         <MachinePagination
-                            page={currentPage}
+                            page={page}
                             pageSize={pageSize}
                             totalItems={totalItems}
                             onPageChange={setPage}
@@ -424,6 +222,8 @@ export default function MachineListPage() {
                 </section>
 
             </main>
+            <MachineImportReportDialog report={report} onClose={closeReport} />
+            <MachineImportSuccessDialog result={successResult} onClose={closeSuccess} />
         </>
     );
 }
